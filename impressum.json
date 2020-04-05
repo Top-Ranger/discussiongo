@@ -1,0 +1,10 @@
+{
+    "DSGVOResponisble": "Name and contact information for DSGVO responsible person",
+    "Name": "Name",
+    "Address": "Address",
+    "Mail": "mail",
+    "SecondContactType": "Second contact type (e.g. phone)",
+    "SecondContactValue": "Second contact value (e.g. phone number)",
+    "Additions": "Additional information to be shown",
+    "ShowAdditions": false
+}

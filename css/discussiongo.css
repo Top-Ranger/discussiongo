@@ -1,0 +1,121 @@
+:root {
+    --primary-colour: #FF6767;
+    --contra-light: #CFF2F2;
+    --contra-dark: #072B7E;
+    --table-base: #e3ebfc;
+    --table-even: hsl(222, 81%, 90%);
+    --table-hover: #B6C8F2;
+    --table-head: #072B7E;
+}
+
+@font-face {
+    font-family: 'Oxygen';
+    src: local('Oxygen Regular'), local('Oxygen-Regular'), url({{.ServerPath}}/font/Oxygen-Regular.ttf);
+}
+
+html {
+    font-family: 'Oxygen', sans-serif;
+    line-height: 1.3;
+    hyphens: auto;
+    height: 100%;
+}
+
+header {
+    box-sizing: border-box;
+    background-color: var(--primary-colour);
+    width: 100%;
+    padding: 0.5rem;
+    align-items: center;
+    display: flex;
+    text-align: left;
+    font-size: x-large;
+}
+
+.header-image {
+    height: 1.5rem;
+}
+
+footer {
+    box-sizing: border-box;
+    background-color: var(--primary-colour);
+    width: 100%;
+    padding: 0.5rem;
+    align-items: center;
+    display: flex;
+    text-align: right;
+    justify-content: flex-end;
+    hyphens: none;
+}
+
+.footer-image {
+    height: 1rem;
+}
+
+a {
+    color: var(--contra-dark);
+}
+a :visited {
+    color: var(--contra-dark);
+}
+
+textarea { 
+    width: 75%;
+    font-family: 'Oxygen', sans-serif;
+}
+
+.odd {
+    background-color: lightgrey;
+}
+
+.even {
+    background-color: whitesmoke;
+}
+
+.metadata {
+    font-size: small;
+    color: darkslategray;
+}
+
+.metadata:visited {
+    font-size: small;
+    color: darkslategray;
+}
+
+.comment {
+    background-color: var(--contra-light);
+}
+
+.showUpdateAvailable {
+    font-size: large;
+    font-style: italic;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td, th, tr {
+    border: 1px solid black;
+}
+
+tr:nth-child(even){
+    background-color: var(--table-even);
+}
+
+tr:hover {
+    background-color: var(--table-hover);
+}
+
+tr {
+    background-color: var(--table-base);
+}
+
+th {
+  text-align: left;
+  background-color: var(--table-head);
+  color: white;
+}
+
+pre {
+    white-space: pre-wrap;
+}

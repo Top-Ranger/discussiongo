@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>{{if .HasNew}}*{{end}}{{.Topic}}{{if .Closed}} - Geschlossen{{else if .Pinned}} - Angepinnt{{end}} - {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+</head>
+
+<body>
+  <script>
+    function copyPostToClipboard(post) {
+      if (navigator.clipboard) {
+  		  navigator.clipboard.writeText(post)
+    	} else {
+        // fallback
+        console.log("Using fallback copy to clipboard")
+        var copy = document.createElement("textarea");
+        copy.value = post;
+        copy.style.position="fixed";
+        document.body.appendChild(copy);
+        copy.focus();
+        copy.select();
+        document.execCommand("copy");
+        document.body.removeChild(copy);
+      }
+    }
+
+    var stopClosingWindow = true;
+
+    window.addEventListener('beforeunload', function (e) {
+      var ta = document.getElementById("textarea");
+      if(stopClosingWindow && ta !== null && ta.value != ""){
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+  <header>
+    <div style="margin-left: 1%">
+      {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!
+    </div>
+  </header>
+
+  <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+
+  <div>
+    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+  </div>
+
+  <div>
+    <h2><a href="#bot">Nach unten</a></h2>
+  </div>
+
+  <h1>Thema: {{.Topic}}{{if .Closed}} - <i>Geschlossen</i>{{else if .Pinned}} - <i>Angepinnt</i>{{end}}</h1>
+
+  {{range $i, $e := .Posts }}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="post{{$e.ID}}">
+    {{if $e.New}}<p><strong>(Neu)</strong></p>{{end}}
+    {{$e.Content}}
+    <p class="metadata">Erstellt: {{$e.Date}}</p>
+    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}/topic.html?id={{$.TopicID}}#post{{$e.ID}}'); return false">Direkten Link in die Zwischenablage kopieren</a></p>
+    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.RawContent}}); return false">Formatierungslos die Zwischenablage kopieren</a></p>
+    {{if $e.CanDelete}}
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">Beitrag {{$e.ID}} löschen</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.ID}}&tid={{$.TopicID}}&token={{$.Token}}">Beitrag {{$e.ID}} löschen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+
+  <div id="bot"/>
+
+  {{if .CanClose}}
+  <div>
+    {{if .Closed}}
+    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">Thema wieder öffnen</button></p>
+    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=0&token={{.Token}}">Thema wieder öffnen</a></p>
+    {{else}}
+    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">Thema schließen</button></p>
+    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=1&token={{.Token}}">Thema schließen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{if .IsAdmin}}
+  <div>
+    {{if .Pinned}}
+    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">Thema nicht mehr anpinnen</button></p>
+    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=0&token={{.Token}}">Thema nicht mehr anpinnen</a></p>
+    {{else}}
+    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">Thema anpinnen</button></p>
+    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=1&token={{.Token}}">Thema anpinnen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{if .LoggedIn}}
+  {{if not .Closed}}
+  <script>
+    function showPreview() {
+      var ta = document.getElementById("textarea")
+      if(ta.value.length == 0) {
+        var preview = document.getElementById("preview")
+        preview.innerHTML = ""
+        return
+      }
+      var form = new FormData();
+      form.append("post", ta.value);
+      form.append("token", "{{.Token}}")
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "{{$.ServerPath}}/getFormattedPost/", true);
+      xhr.onload = function() {
+        var preview = document.getElementById("preview")
+        preview.innerHTML = xhr.response
+      }
+      xhr.send(form);
+    }
+  </script>
+
+  <div>
+    <h1>Benutzer</h1>
+    <p>Name: {{.User}}</p>
+    <h2>Neuer Beitrag</h2>
+    <div id="preview"></div>
+    <p><button onclick="showPreview();">Vorschau</button></p>
+    <form id="newPost" action="{{.ServerPath}}/newPost.html?tid={{.TopicID}}" method="POST">
+      <textarea id="textarea" name="post" rows="5" form="newPost" placeholder="Beitrag" maxlength="10000" required></textarea> <br>
+      <input type="hidden" name="token" value="{{.Token}}">
+      <input type="submit" id="submitButton" value="Beitrag erstellen" onclick="stopClosingWindow = false;">
+    </form>
+    <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+  </div>
+  {{end}}
+  {{end}}
+
+  <div>
+    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+  </div>
+
+  <script>
+  function reloader() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
+    xhr.responseType = "json";
+    xhr.onload = function() {
+        if (xhr.status !== 200) {
+            console.log("Error loading update stamp")
+            return
+        }
+        var ta = document.getElementById("textarea");
+        if(xhr.response.LastUpdate != {{.CurrentUpdate}}) {
+          if (ta === null || ta.value == "") {
+            location.reload();
+          } else {
+            l = document.getElementsByClassName("showUpdateAvailable")
+            for(var i = 0; i < l.length; ++i) {
+              l[i].removeAttribute('hidden');
+            }
+          }
+        }
+    }
+    xhr.send();
+  }
+  setInterval(reloader, 60000);
+  </script>
+
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>

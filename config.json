@@ -1,0 +1,15 @@
+{
+    "CanRegister": false,
+    "CanReadWithoutRegister": false,
+    "Address": "localhost:10800",
+    "InvitationAdmin": true,
+    "InvitationUser": false,
+    "ServerPrefix": "localhost:10800",
+    "ServerPath": "",
+    "CookieLogin": "l",
+    "CookieAuth": "auth",
+    "CookieMinutes": 1440,
+    "LengthPassword": 12,
+    "CreateInvitationMessage": "",
+    "ForumName": ""
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>{{if .HasNew}}*{{end}}{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!
+    </div>
+  </header>
+
+  <script>
+    var stopClosingWindow = true;
+
+    window.addEventListener('beforeunload', function (e) {
+      var ta = document.getElementById("textarea");
+      if(stopClosingWindow && ta !== null && ta.value != ""){
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+
+  <p id="registerNotificationsButton" hidden><button onclick="requestNotificationPermission()">Benachrichtigungen aktivieren</button></p>
+  <p id="showNotificationsRegistered" hidden>Benachrichtigungen sind aktiviert</p>
+
+  <script>
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        document.getElementById("showNotificationsRegistered").removeAttribute('hidden');
+      } else {
+        document.getElementById("registerNotificationsButton").removeAttribute('hidden');
+      }
+    }
+
+    if(window.sessionStorage.getItem("{{.ServerPath}} send notification") !== null) {
+      window.sessionStorage.removeItem("{{.ServerPath}} send notification");
+
+      // avoid double messages if multiple tabs are open
+      var last = window.localStorage.getItem("{{.ServerPath}} last notification");
+      console.log(last)
+      if(last !== "{{.CurrentUpdate}}") {
+        window.localStorage.setItem("{{.ServerPath}} last notification", "{{.CurrentUpdate}}");
+        var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\nEine Aktualisierung ist verfügbar", {"icon": "{{.ServerPath}}/static/Logo.svg"});
+      }
+    }
+
+    function requestNotificationPermission() {
+      if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+        if (permission === "granted") {
+          var notification = new Notification("Benachrichtigungen für {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo! wurden aktiviert", {"icon": "{{.ServerPath}}/static/Logo.svg"});
+          document.getElementById("showNotificationsRegistered").removeAttribute('hidden');
+          document.getElementById("registerNotificationsButton").hidden = true;
+        }
+      });
+    }
+  }
+  </script>
+
+  <noscript>
+    <h1>JavaScript ist ausgeschaltet - einige Funktionen werden nicht richtig funktionieren!</h1>
+  </noscript>
+
+  <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+
+  {{if not .LoggedIn}}
+  <div>
+    <h1><a href="{{.ServerPath}}/login.html">Login</a></h1>
+  </div>
+  {{end}}
+
+  {{if .LoggedIn}}
+  <div>
+      <h1>Benutzer</h1>
+      <p>Name: {{.User}}</p>
+      <p><a href="{{.ServerPath}}/user.html">Benutzer (Einstellungen)</a></p>
+      {{if .IsAdmin}}
+      <p><a href="{{.ServerPath}}/usermanagement.html">Benutzermanagement</a></p>
+      {{end}}
+      <p><a href="{{.ServerPath}}/login.html">Logout</a></p>
+      <h2><a href="{{.ServerPath}}/markRead.html">Alles als gelesen markieren</a></h2>
+      <form id="newTopic" action="{{.ServerPath}}/newTopic.html" method="POST">
+        <input type="hidden" name="token" value="{{.Token}}">
+        <h1>Neues Thema</h1>
+        <textarea id="textarea" name="topic" rows="1" form="newTopic" placeholder="Thema" maxlength="10000" required></textarea> <br>
+        <input type="submit" id="submitButton" value="Thema erstellen" onclick="stopClosingWindow = false;">
+      </form>
+      <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+  </div>
+  {{end}}
+
+  {{if .HasPinned}}
+  <div>
+    <h1>Angepinnte Themen</h1>
+  </div>
+  {{range $i, $e := .TopicsPinned}}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
+    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    <p class="metadata">Letzte Änderung: {{$e.Modified}}</p>
+    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    {{if $.IsAdmin}}
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">Thema {{$e.ID}} löschen</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">Thema {{$e.ID}} löschen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+  {{end}}
+
+  <div>
+    <h1>Themen</h1>
+  </div>
+  {{range $i, $e := .Topics}}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
+    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    <p class="metadata">Letzte Änderung: {{$e.Modified}}</p>
+    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    {{if $.IsAdmin}}
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$e.ID}} löschen</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$e.ID}} löschen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{if .HasClosed}}
+  <div>
+    <h1>Geschlossene Themen</h1>
+  </div>
+  {{range $i, $e := .TopicsClosed}}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
+    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    {{if $.IsAdmin}}
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$e.ID}} löschen</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$e.ID}} löschen</a></p>
+    {{end}}
+  </div>
+  {{end}}
+  {{end}}
+
+  <script>
+  function reloader() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
+    xhr.responseType = "json";
+    xhr.onload = function() {
+        if (xhr.status !== 200) {
+            console.log("Error loading update stamp")
+            return
+        }
+        var ta = document.getElementById("textarea");
+        if(xhr.response.LastUpdate != {{.CurrentUpdate}}) {
+          if (ta === null || ta.value == "") {
+            if (Notification.permission === "granted") {
+              window.sessionStorage.setItem("{{.ServerPath}} send notification", "yes")
+            }
+            location.reload();
+          } else {
+            l = document.getElementsByClassName("showUpdateAvailable")
+            for(var i = 0; i < l.length; ++i) {
+              l[i].removeAttribute('hidden');
+            }
+          }
+        }
+    }
+    xhr.send();
+  }
+  setInterval(reloader, 60000);
+  </script>
+
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!
+    </div>
+  </header>
+
+  <div>
+    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+  </div>
+
+  <div>
+    <h1>Impressum</h1>
+    <p><b>{{.Name}}</b></p>
+    <p>{{.Address}}</p>
+    <p><i>E-Mail:</i> <a href="mailto:{{.Mail}}">{{.Mail}}</a></p>
+    <p><i>{{.SecondContactType}}:</i> {{.SecondContactValue}}</p>
+    {{if .ShowAdditions}}
+    <p>{{.Additions}}</p>
+    {{end}}
+    <p><img style="max-width: 500px" src="{{.ServerPath}}/static/Logo.svg" alt="Logo"></p>
+  </div>
+
+  <div>
+    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+  </div>
+  
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>

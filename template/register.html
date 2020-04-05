@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!
+    </div>
+  </header>
+
+  <div>
+    <h1><a href="{{.ServerPath}}/login.html">Zurück</a></h1>
+  </div>
+
+  {{if .ShowError}}
+  <div>
+    <h1>{{.Error}}</h1>
+  </div>
+  {{end}}
+  {{if .ShowRegister}}
+  <div>
+      <h1>Registrieren:</h1>
+        <form id="register" action="{{.ServerPath}}/registerUser.html" method="POST">
+        <label for="name">Name:</label> <br>
+        <input id="name" type="text" name="name" placeholder="Name" required autofocus> <br>
+        <label for="pw">Passwort:</label>P <br>
+        <input id="pw" type="password" name="pw" placeholder="Passwort" required> <br>
+        <p><input type="checkbox" name="datenschutzerklärung" value="zugestimmt" required> Ich stimme zu, dass meine Daten gemäß der <a href="{{.ServerPath}}/datenschutz.html" target="_blank"> Datenschutzerklärung</a> verarbeitet werden.</p>
+        <label for="captcha">Captcha, dafür <strong>dies</strong> hier {{.Captcha}} eingeben:</label> <br>
+        <input id="captcha" type="text" name="captcha" placeholder="captcha" required> <br>
+        <input type="hidden" name="captchaID" value="{{.CaptchaID}}"> <br>
+        <input type="submit" id="submitButton" value="Registrieren">
+      </form>
+  </div>
+  {{end}}
+
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>

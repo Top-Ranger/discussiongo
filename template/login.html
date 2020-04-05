@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html lang="de">
+
+<head>
+  <title>{{if not .LoggedIn}}Login - {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!{{else}}Logout - {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo{{end}}</title>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="author" content="Marcus Soll"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="author" href="https://msoll.de/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
+  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <div style="margin-left: 1%">
+      {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!
+    </div>
+  </header>
+
+  <div>
+    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+  </div>
+
+  {{if not .LoggedIn}}
+  <div>
+    <h1>Login</h1>
+    <form id="login" action="{{.ServerPath}}/login/" method="POST">
+        <input type="hidden" name="token" value="{{.Token}}">
+        <label for="name">Name:</label> <br>
+        <input id="name" type="text" name="name" placeholder="Name" required autofocus> <br>
+        <label for="pw">Passwort:</label> <br>
+        <input id="pw" type="password" name="pw" placeholder="Passwort" required> <br>
+        <input type="submit" id="submitButton" value="Login">
+    </form>
+    {{if .RegisterPossible}}
+    <a href="{{.ServerPath}}/register.html">Registrieren</a>
+    {{end}}
+  </div>
+  {{else}}
+  <div>
+      <h1>Logout: {{.Username}}</h1>
+      <form id="logout" action="{{.ServerPath}}/logout/" method="POST">
+        <input type="hidden" name="token" value="{{.Token}}">
+        <input type="submit" id="submitButton" value="Logout">
+      </form>
+  </div>
+  {{end}}
+  <footer>
+    <div>
+      Created by <a href="https://msoll.de/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+    </div>
+  </footer>
+</body>
+
+</html>
