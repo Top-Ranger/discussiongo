@@ -18,3 +18,10 @@ go build
 The software will create a new user called 'SYSTEM'. You can use it for initial setup.
 All configuration can be found in 'config.json' and 'impressum.json'.
 All data is saved in 'database.sqlite3' and 'accesstimes.sqlite3'.
+
+DiscussionGo! is licenced under Apache-2.0.
+
+++++++++++++++++++++++++++++++++++++++++++++
+Bundeled libraries
+++++++++++++++++++++++++++++++++++++++++++++
+QuestionGo is bundeled with the Oxygen font, which is licenced under the SIL Open Font License, Version 1.1.
