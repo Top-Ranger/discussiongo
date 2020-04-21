@@ -127,7 +127,7 @@ func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	if loggedIn {
 		var err error
-		token, err := data.GetStringsTimed(time.Now(), fmt.Sprintf("%s;newTopic", user))
+		token, err := data.GetStringsTimed(time.Now(), fmt.Sprintf("%s;Token", user))
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte(err.Error()))
