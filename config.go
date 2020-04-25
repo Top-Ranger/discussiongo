@@ -26,6 +26,7 @@ import (
 )
 
 type configData struct {
+	Language                string
 	CanRegister             bool
 	CanReadWithoutRegister  bool
 	Address                 string
@@ -33,6 +34,7 @@ type configData struct {
 	InvitationUser          bool
 	ServerPrefix            string
 	ServerPath              string
+	CookieLanguage          string
 	CookieLogin             string
 	CookieAuth              string
 	CookieMinutes           int

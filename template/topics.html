@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .HasNew}}*{{end}}{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -31,8 +31,8 @@
     });
   </script>
 
-  <p id="registerNotificationsButton" hidden><button onclick="requestNotificationPermission()">Benachrichtigungen aktivieren</button></p>
-  <p id="showNotificationsRegistered" hidden>Benachrichtigungen sind aktiviert</p>
+  <p id="registerNotificationsButton" hidden><button onclick="requestNotificationPermission()">{{.Translation.ActivateNotifications}}</button></p>
+  <p id="showNotificationsRegistered" hidden>{{.Translation.NotificationsActivated}}</p>
 
   <script>
     if ("Notification" in window) {
@@ -51,7 +51,7 @@
       console.log(last)
       if(last !== "{{.CurrentUpdate}}") {
         window.localStorage.setItem("{{.ServerPath}} last notification", "{{.CurrentUpdate}}");
-        var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\nEine Aktualisierung ist verfügbar", {"icon": "{{.ServerPath}}/static/Logo.svg"});
+        var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\n{{.Translation.NewPostTopicMessage}}", {"icon": "{{.ServerPath}}/static/Logo.svg"});
       }
     }
 
@@ -59,7 +59,7 @@
       if (Notification.permission !== 'denied') {
         Notification.requestPermission(function (permission) {
         if (permission === "granted") {
-          var notification = new Notification("Benachrichtigungen für {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo! wurden aktiviert", {"icon": "{{.ServerPath}}/static/Logo.svg"});
+          var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\n{{.Translation.NotificationsActivated}}", {"icon": "{{.ServerPath}}/static/Logo.svg"});
           document.getElementById("showNotificationsRegistered").removeAttribute('hidden');
           document.getElementById("registerNotificationsButton").hidden = true;
         }
@@ -69,79 +69,79 @@
   </script>
 
   <noscript>
-    <h1>JavaScript ist ausgeschaltet - einige Funktionen werden nicht richtig funktionieren!</h1>
+    <h1>{{.Translation.JavaScriptWarning}}</h1>
   </noscript>
 
-  <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+  <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
 
   {{if not .LoggedIn}}
   <div>
-    <h1><a href="{{.ServerPath}}/login.html">Login</a></h1>
+    <h1><a href="{{.ServerPath}}/login.html">{{.Translation.Login}}</a></h1>
   </div>
   {{end}}
 
   {{if .LoggedIn}}
   <div>
-      <h1>Benutzer</h1>
-      <p>Name: {{.User}}</p>
-      <p><a href="{{.ServerPath}}/user.html">Benutzer (Einstellungen)</a></p>
+      <h1>{{.Translation.User}}</h1>
+      <p>{{.Translation.Name}}: {{.User}}</p>
+      <p><a href="{{.ServerPath}}/user.html">{{.Translation.UserSettings}}</a></p>
       {{if .IsAdmin}}
-      <p><a href="{{.ServerPath}}/usermanagement.html">Benutzermanagement</a></p>
+      <p><a href="{{.ServerPath}}/usermanagement.html">{{.Translation.UserManagement}}</a></p>
       {{end}}
-      <p><a href="{{.ServerPath}}/login.html">Logout</a></p>
-      <h2><a href="{{.ServerPath}}/markRead.html">Alles als gelesen markieren</a></h2>
+      <p><a href="{{.ServerPath}}/login.html">{{.Translation.Logout}}</a></p>
+      <h2><a href="{{.ServerPath}}/markRead.html">{{.Translation.MarkAllRead}}</a></h2>
       <form id="newTopic" action="{{.ServerPath}}/newTopic.html" method="POST">
         <input type="hidden" name="token" value="{{.Token}}">
-        <h1>Neues Thema</h1>
+        <h1>{{.Translation.NewTopic}}</h1>
         <textarea id="textarea" name="topic" rows="1" form="newTopic" placeholder="Thema" maxlength="10000" required></textarea> <br>
-        <input type="submit" id="submitButton" value="Thema erstellen" onclick="stopClosingWindow = false;">
+        <input type="submit" id="submitButton" value="{{.Translation.CreateTopic}}" onclick="stopClosingWindow = false;">
       </form>
-      <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+      <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
   </div>
   {{end}}
 
   {{if .HasPinned}}
   <div>
-    <h1>Angepinnte Themen</h1>
+    <h1>{{.Translation.PinnedTopics}}</h1>
   </div>
   {{range $i, $e := .TopicsPinned}}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
-    <p class="metadata">Letzte Änderung: {{$e.Modified}}</p>
-    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    <p>{{if $e.New}}<strong>({{$.Translation.New}}) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
     {{if $.IsAdmin}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">Thema {{$e.ID}} löschen</button></p>
-    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">Thema {{$e.ID}} löschen</a></p>
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteTopic}}</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$.Translation.DeleteTopic}}</a></p>
     {{end}}
   </div>
   {{end}}
   {{end}}
 
   <div>
-    <h1>Themen</h1>
+    <h1>{{.Translation.Topics}}</h1>
   </div>
   {{range $i, $e := .Topics}}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
-    <p class="metadata">Letzte Änderung: {{$e.Modified}}</p>
-    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    <p>{{if $e.New}}<strong>({{$.Translation.New}}) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
     {{if $.IsAdmin}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$e.ID}} löschen</button></p>
-    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$e.ID}} löschen</a></p>
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteTopic}}</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$.Translation.DeleteTopic}}</a></p>
     {{end}}
   </div>
   {{end}}
 
   {{if .HasClosed}}
   <div>
-    <h1>Geschlossene Themen</h1>
+    <h1>{{.Translation.ClosedTopics}}</h1>
   </div>
   {{range $i, $e := .TopicsClosed}}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p>{{if $e.New}}<strong>(Neu) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
+    <p>{{if $e.New}}<strong>({{$.Translation.New}}) </strong>{{end}}<a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a></p>
     {{if $.IsAdmin}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$e.ID}} löschen</button></p>
-    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$e.ID}} löschen</a></p>
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteTopic}}</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteTopic.html?id={{$e.ID}}&token={{$.Token}}">{{$.Translation.DeleteTopic}}</a></p>
     {{end}}
   </div>
   {{end}}
@@ -179,7 +179,7 @@
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

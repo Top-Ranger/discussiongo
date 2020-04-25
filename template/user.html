@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -33,18 +33,18 @@
   </script>
 
   <div>
-    <h1><a href="{{.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <div>
-      <h1>Benutzer</h1>
-      <p>Name: {{.User}}</p>
-      {{if .IsAdmin}}<p><strong>Benutzer ist Administrator</strong></p>{{end}}
-      <p>Letzte Aktivität: <i>{{.LastSeen}}</i></p>
-      <p><a href="{{.ServerPath}}/profile.html?user={{.User}}">Öffentliches Profil</a></p>
-      <p><a href="{{.ServerPath}}/login.html">Logout</a></p>
+      <h1>{{.Translation.User}}</h1>
+      <p>{{.Translation.Name}}: {{.User}}</p>
+      {{if .IsAdmin}}<p><strong>{{.Translation.UserIsAdministrator}}</strong></p>{{end}}
+      <p>{{.Translation.LastActicity}}: <i>{{.LastSeen}}</i></p>
+      <p><a href="{{.ServerPath}}/profile.html?user={{.User}}">{{.Translation.Profile}}</a></p>
+      <p><a href="{{.ServerPath}}/login.html">{{.Translation.Logout}}</a></p>
 
-      <h1 id="comment">Kommentar</h1>
+      <h1 id="comment">{{.Translation.Comment}}</h1>
       <script>
         function showPreview() {
           var ta = document.getElementById("textarea")
@@ -66,65 +66,65 @@
         }
       </script>
       {{if .HasComment}}
-      <p>Momentan:</p>
+      <p>{{.Translation.CurrentComment}}:</p>
       <div class="comment">
         {{.Comment}}
       </div>
       {{end}}
       <div id="preview"></div>
-      <p><button onclick="showPreview();">Vorschau</button></p>  
+      <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>  
       <form id="changeComment" action="{{.ServerPath}}/comment.html" method="POST">
         <input type="hidden" name="token" value="{{.Token}}">
-        <textarea id="textarea" name="comment" rows="5" form="changeComment" placeholder="Neuer Kommentar" maxlength="10000" onchange="contentChanged = true;">{{.CommentUnescaped}}</textarea> <br>
-        <input type="submit" id="commentSubmitButton" value="Kommentar ändern" onclick="stopClosingWindow = false;">
+        <textarea id="textarea" name="comment" rows="5" form="changeComment" placeholder="{{.Translation.Comment}}" maxlength="10000" onchange="contentChanged = true;">{{.CommentUnescaped}}</textarea> <br>
+        <input type="submit" id="commentSubmitButton" value="{{.Translation.ChangeComment}}" onclick="stopClosingWindow = false;">
       </form>
 
       <form id="changePassword" action="{{.ServerPath}}/password.html" method="POST">
         <input type="hidden" name="token" value="{{.Token}}">
-        <h1>Passwort ändern</h1>
-        <label for="old">Altes Passwort:</label> <br>
-        <input id="old" type="password" name="old" placeholder="Altes Passwort" required> <br>
-        <label for="new">Neues Passwort:</label> <br>
-        <input id="new" type="password" name="new" placeholder="Neues Passwort" required> <br>
-        <input type="submit" id="submitButton" value="Passwort ändern">
+        <h1>{{.Translation.ChangePassword}}</h1>
+        <label for="old">{{.Translation.OldPassword}}:</label> <br>
+        <input id="old" type="password" name="old" placeholder="{{.Translation.OldPassword}}" required> <br>
+        <label for="new">{{.Translation.NewPassword}}:</label> <br>
+        <input id="new" type="password" name="new" placeholder="{{.Translation.NewPassword}}" required> <br>
+        <input type="submit" id="submitButton" value="{{.Translation.ChangePassword}}">
       </form>
   </div>
 
   {{if .CanInvite}}
   <div id="inv">
-      <h1>Einladungen</h1>
-      <p>Offene Einladungen:</p>
+      <h1>{{.Translation.Invitations}}</h1>
+      <p>{{.Translation.OpenInvitations}}:</p>
       <ul>
       {{range $i, $e := .Invitations }}
-        <li>{{$.ServerPrefix}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">Einladung löschen</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">Einladung löschen</a></p></li>
+        <li>{{$.ServerPrefix}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteInvitation}}</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">{{$.Translation.DeleteInvitation}}</a></p></li>
       {{end}}
       </ul>
     {{if .CreateInvitationMessage}}<p><i>{{.CreateInvitationMessage}}</i></p>{{end}}
     <form id="newInvitation" action="{{.ServerPath}}/newInvitation.html" method="POST">
       <input type="hidden" name="token" value="{{.Token}}">
-      <input type="submit" id="submitButton" value="Neue Einladung">
+      <input type="submit" id="submitButton" value="{{.Translation.NewInvitation}}">
     </form>
   </div>
   {{end}}
 
   <div>
-    <h1>Alle Daten exportieren</h1>
-    <p><a href="{{$.ServerPath}}/dsgvoExport.xml?token={{.Token}}" download="export_{{.User}}.xml">Alle gespeicherten Daten exportieren (gemäß DSGVO Art. 15 und DSGVO Art. 20)</a></p>
+    <h1>{{.Translation.ExportDataShort}}</h1>
+    <p><a href="{{$.ServerPath}}/dsgvoExport.xml?token={{.Token}}" download="export_{{.User}}.xml">{{.Translation.ExportDataLong}}</a></p>
   </div>
 
   <div>
-    <h1>Nutzer löschen</h1>
-    <p><button onclick="document.getElementById('deleteLink').removeAttribute('hidden'); this.disabled=true">Benutzer löschen</button></p>
-    <p id="deleteLink" hidden><a href="{{$.ServerPath}}/deleteUser.html?user={{.User}}&token={{.Token}}">Benutzer JETZT löschen (kann nicht rückgängig gemacht werden)</a></p>
+    <h1>{{.Translation.DeleteUser}}</h1>
+    <p><button onclick="document.getElementById('deleteLink').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteUser}}</button></p>
+    <p id="deleteLink" hidden><a href="{{$.ServerPath}}/deleteUser.html?user={{.User}}&token={{.Token}}">{{.Translation.DeleteUserWarning}}</a></p>
   </div>
 
   <div>
-    <h1><a href="{{.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

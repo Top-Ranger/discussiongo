@@ -38,6 +38,7 @@ type loginLogoutData struct {
 	ServerPath       string
 	ForumName        string
 	Token            string
+	Translation      Translation
 }
 
 func init() {
@@ -136,6 +137,7 @@ func TestUser(r *http.Request) (bool, string) {
 }
 
 func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	returnError := func() { http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound) }
 
 	err := r.ParseForm()
@@ -149,18 +151,18 @@ func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	token, ok := r.Form["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], "SYSTEM:UserLogin", time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
@@ -215,10 +217,10 @@ func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	ok, user := TestUser(r)
 	if !ok {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Not logged in"))
 		return
 	}
 
@@ -232,18 +234,18 @@ func logoutHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	token, ok := r.Form["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
@@ -254,7 +256,7 @@ func logoutHandleFunc(rw http.ResponseWriter, r *http.Request) {
 func loginPageHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	ok, user := TestUser(r)
 
-	l := loginLogoutData{LoggedIn: ok, Username: user, RegisterPossible: config.CanRegister, ServerPath: config.ServerPath, ForumName: config.ForumName}
+	l := loginLogoutData{LoggedIn: ok, Username: user, RegisterPossible: config.CanRegister, ServerPath: config.ServerPath, ForumName: config.ForumName, Translation: GetDefaultTranslation()}
 
 	if l.LoggedIn {
 		token, err := data.GetStringsTimed(time.Now(), fmt.Sprintf("%s;Token", user))

@@ -43,6 +43,7 @@ type templateTopicData struct {
 	TopicsPinned  []topicData
 	TopicsClosed  []topicData
 	Token         string
+	Translation   Translation
 }
 
 type topicData struct {
@@ -121,6 +122,7 @@ func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Topics:        make([]topicData, 0, len(topics)),
 		TopicsPinned:  make([]topicData, 0, len(topics)),
 		TopicsClosed:  make([]topicData, 0, len(topics)),
+		Translation:   GetDefaultTranslation(),
 	}
 
 	var times []time.Time
@@ -369,7 +371,6 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	if !isAdmin && user != topic.Creator {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Closing not allowed"))
 		return
 	}
 
@@ -404,7 +405,6 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 	if !isAdmin {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Pin not allowed"))
 		return
 	}
 

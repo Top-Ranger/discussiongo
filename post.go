@@ -52,6 +52,7 @@ type templatePostData struct {
 	CurrentUpdate int64
 	Posts         []postData
 	Token         string
+	Translation   Translation
 }
 
 type postData struct {
@@ -174,6 +175,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		HasNew:        false,
 		CurrentUpdate: database.GetLastUpdateTopicPost(),
 		Posts:         make([]postData, 0, len(posts)),
+		Translation:   GetDefaultTranslation(),
 	}
 
 	var lastUpdate time.Time
@@ -239,6 +241,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -286,7 +289,7 @@ func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 	if topic.Closed {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Topic is closed"))
+		rw.Write([]byte(t.TopicIsClosed))
 		return
 	}
 
@@ -404,11 +407,11 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("User not logged in"))
 		return
 	}
 
@@ -424,30 +427,28 @@ func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
 	post, ok := q["post"]
 	if !ok {
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Wrong request1"))
 		return
 	}
 	if len(post) != 1 {
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Wrong request2"))
 		return
 	}
 

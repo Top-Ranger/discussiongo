@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .HasNew}}*{{end}}{{.Topic}}{{if .Closed}} - Geschlossen{{else if .Pinned}} - Angepinnt{{end}} - {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -47,29 +47,29 @@
     </div>
   </header>
 
-  <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+  <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
 
   <div>
-    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <div>
-    <h2><a href="#bot">Nach unten</a></h2>
+    <h2><a href="#bot">{{.Translation.NavigateToBottom}}</a></h2>
   </div>
 
-  <h1>Thema: {{.Topic}}{{if .Closed}} - <i>Geschlossen</i>{{else if .Pinned}} - <i>Angepinnt</i>{{end}}</h1>
+  <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
 
   {{range $i, $e := .Posts }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="post{{$e.ID}}">
-    {{if $e.New}}<p><strong>(Neu)</strong></p>{{end}}
+    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
     {{$e.Content}}
-    <p class="metadata">Erstellt: {{$e.Date}}</p>
-    <p class="metadata">Ersteller: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
-    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}/topic.html?id={{$.TopicID}}#post{{$e.ID}}'); return false">Direkten Link in die Zwischenablage kopieren</a></p>
-    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.RawContent}}); return false">Formatierungslos die Zwischenablage kopieren</a></p>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
+    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}/topic.html?id={{$.TopicID}}#post{{$e.ID}}'); return false">{{$.Translation.CopyLink}}</a></p>
+    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.RawContent}}); return false">{{$.Translation.CopyContent}}</a></p>
     {{if $e.CanDelete}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">Beitrag {{$e.ID}} löschen</button></p>
-    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.ID}}&tid={{$.TopicID}}&token={{$.Token}}">Beitrag {{$e.ID}} löschen</a></p>
+    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeletePost}}</button></p>
+    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeletePost}}</a></p>
     {{end}}
   </div>
   {{end}}
@@ -79,11 +79,11 @@
   {{if .CanClose}}
   <div>
     {{if .Closed}}
-    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">Thema wieder öffnen</button></p>
-    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=0&token={{.Token}}">Thema wieder öffnen</a></p>
+    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.OpenTopic}}</button></p>
+    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=0&token={{.Token}}">{{.Translation.OpenTopic}}</a></p>
     {{else}}
-    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">Thema schließen</button></p>
-    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=1&token={{.Token}}">Thema schließen</a></p>
+    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.CloseTopic}}</button></p>
+    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=1&token={{.Token}}">{{.Translation.CloseTopic}}</a></p>
     {{end}}
   </div>
   {{end}}
@@ -91,11 +91,11 @@
   {{if .IsAdmin}}
   <div>
     {{if .Pinned}}
-    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">Thema nicht mehr anpinnen</button></p>
-    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=0&token={{.Token}}">Thema nicht mehr anpinnen</a></p>
+    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.UnpinTopic}}</button></p>
+    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=0&token={{.Token}}">{{.Translation.UnpinTopic}}</a></p>
     {{else}}
-    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">Thema anpinnen</button></p>
-    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=1&token={{.Token}}">Thema anpinnen</a></p>
+    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.PinTopic}}</button></p>
+    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=1&token={{.Token}}">{{.Translation.PinTopic}}</a></p>
     {{end}}
   </div>
   {{end}}
@@ -124,23 +124,23 @@
   </script>
 
   <div>
-    <h1>Benutzer</h1>
-    <p>Name: {{.User}}</p>
-    <h2>Neuer Beitrag</h2>
+    <h1>{{.Translation.User}}</h1>
+    <p>{{.Translation.Name}}: {{.User}}</p>
+    <h2>{{.Translation.NewPost}}</h2>
     <div id="preview"></div>
-    <p><button onclick="showPreview();">Vorschau</button></p>
+    <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>
     <form id="newPost" action="{{.ServerPath}}/newPost.html?tid={{.TopicID}}" method="POST">
       <textarea id="textarea" name="post" rows="5" form="newPost" placeholder="Beitrag" maxlength="10000" required></textarea> <br>
       <input type="hidden" name="token" value="{{.Token}}">
-      <input type="submit" id="submitButton" value="Beitrag erstellen" onclick="stopClosingWindow = false;">
+      <input type="submit" id="submitButton" value="{{.Translation.CreatePost}}" onclick="stopClosingWindow = false;">
     </form>
-    <p class="showUpdateAvailable" hidden>Eine Aktualisierung ist verfügbar, bitte Seite neu laden.</p>
+    <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
   </div>
   {{end}}
   {{end}}
 
   <div>
-    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <script>
@@ -172,7 +172,7 @@
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

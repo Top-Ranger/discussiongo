@@ -27,13 +27,14 @@ import (
 )
 
 type templateProfileData struct {
-	ServerPath string
-	ForumName  string
-	User       string
-	Comment    template.HTML
-	HasComment bool
-	Topics     []topicData
-	Posts      []postData
+	ServerPath  string
+	ForumName   string
+	User        string
+	Comment     template.HTML
+	HasComment  bool
+	Topics      []topicData
+	Posts       []postData
+	Translation Translation
 }
 
 var (
@@ -99,13 +100,14 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	td := templateProfileData{
-		ServerPath: config.ServerPath,
-		ForumName:  config.ForumName,
-		User:       u.Name,
-		Comment:    formatPost(u.Comment),
-		HasComment: u.Comment != "",
-		Topics:     make([]topicData, 0, len(topics)),
-		Posts:      make([]postData, 0, len(posts)),
+		ServerPath:  config.ServerPath,
+		ForumName:   config.ForumName,
+		User:        u.Name,
+		Comment:     formatPost(u.Comment),
+		HasComment:  u.Comment != "",
+		Topics:      make([]topicData, 0, len(topics)),
+		Posts:       make([]postData, 0, len(posts)),
+		Translation: GetDefaultTranslation(),
 	}
 
 	for i := range topics {

@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -20,28 +20,21 @@
   </header>
 
   <div>
-    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <div>
-    <h1>Impressum</h1>
-    <p><b>{{.Name}}</b></p>
-    <p>{{.Address}}</p>
-    <p><i>E-Mail:</i> <a href="mailto:{{.Mail}}">{{.Mail}}</a></p>
-    <p><i>{{.SecondContactType}}:</i> {{.SecondContactValue}}</p>
-    {{if .ShowAdditions}}
-    <p>{{.Additions}}</p>
-    {{end}}
+    {{.Text}}
     <p><img style="max-width: 500px" src="{{.ServerPath}}/static/Logo.svg" alt="Logo"></p>
   </div>
 
   <div>
-    <h1><a href="{{$.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
   
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

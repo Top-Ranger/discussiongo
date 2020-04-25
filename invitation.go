@@ -37,6 +37,7 @@ type templateInvitationData struct {
 	InvitedBy    string
 	ForumName    string
 	Token        string
+	Translation  Translation
 }
 
 var (
@@ -58,6 +59,7 @@ func init() {
 }
 
 func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	q := r.URL.Query()
 	inv, ok := q["inv"]
@@ -66,11 +68,12 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Einladung ungültig",
+			Error:        t.InvitationInvalid,
 			Invitation:   "",
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -83,11 +86,12 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Einladung ungültig",
+			Error:        t.InvitationInvalid,
 			Invitation:   "",
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -112,6 +116,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		InvitedBy:    "",
 		ForumName:    config.ForumName,
 		Token:        "INVALID",
+		Translation:  t,
 	}
 	if !ok {
 		td.Error = "Einladung nicht gültig"
@@ -142,6 +147,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	err := r.ParseForm()
 	if err != nil {
@@ -158,11 +164,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Einladung ungültig",
+			Error:        t.InvitationInvalid,
 			Invitation:   "",
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -175,11 +182,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Einladung ungültig",
+			Error:        t.InvitationInvalid,
 			Invitation:   "",
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -199,11 +207,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Einladung nicht gültig",
+			Error:        t.InvitationInvalid,
 			Invitation:   "",
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -224,11 +233,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -241,11 +251,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -258,11 +269,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -279,11 +291,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Token ungültig",
+			Error:        t.TokenInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -296,11 +309,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Token ungültig",
+			Error:        t.TokenInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -315,11 +329,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Token ungültig",
+			Error:        t.TokenInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -341,11 +356,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Name ungültig",
+			Error:        t.NameInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -358,11 +374,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Name ungültig",
+			Error:        t.NameInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -375,11 +392,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Name ungültig",
+			Error:        t.NameInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -393,11 +411,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Benutzername nicht erlaubt",
+			Error:        t.NameInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -417,11 +436,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Benutzer existiert bereits - anderen Benutzernamen wählen",
+			Error:        t.UserExists,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -436,11 +456,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Passwort ungültig",
+			Error:        t.PasswordInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -453,11 +474,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        "Passwort ungültig",
+			Error:        t.PasswordInvalid,
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {
@@ -470,11 +492,12 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
-			Error:        fmt.Sprintln("Passwort zu kurz, Mindestlänge ist", config.LengthPassword),
+			Error:        fmt.Sprintf(t.PasswortTooShort, config.LengthPassword),
 			Invitation:   inv[0],
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
+			Translation:  t,
 		}
 		err := invitationTemplate.Execute(rw, td)
 		if err != nil {

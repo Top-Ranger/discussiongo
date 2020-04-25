@@ -26,6 +26,9 @@ import (
 )
 
 func main() {
+	// Set Translation
+	SetDefaultTranslation(config.Language)
+
 	// Test SYSTEM
 	exists, err := database.UserExists("SYSTEM")
 

@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -20,57 +20,57 @@
   </header>
 
   <div>
-    <h1><a href="{{.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <div>
-      <h1>Benutzer</h1>
-      <p>Name: {{.Username}}</p>
+      <h1>{{.Translation.User}}</h1>
+      <p>{{.Translation.Name}}: {{.Username}}</p>
   </div>
 
   <div>
-    <h1>Benutzerliste</h1>
+    <h1>{{.Translation.UserList}}</h1>
   </div>
 
   {{range $i, $e := .User }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="user{{$e.Name}}">
       <p>{{$e.Name}}</p>
-      {{if $e.Invited}}<p>Eingeladen von <i>{{$e.InvitedBy}}</i>{{if $e.InvitationIndirect}} (indirekt){{end}}</p>{{end}}
-      {{if $e.Admin}}<p><strong>Benutzer ist Administrator</strong></p>{{end}}
-      <p>Letzte Aktivität: <i>{{$e.LastSeen}}</i></p>
-      <p><a href="{{$.ServerPath}}/profile.html?user={{$e.Name}}">Öffentliches Profil</a></p>
-      {{if $e.Admin}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=0&token={{$.Token}}">Admin entfernen</a></p>{{else}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=1&token={{$.Token}}">Zum Admin machen</a></p>{{end}}
-      <p><a href="{{$.ServerPath}}/adminResetPasswort.html?name={{$e.Name}}&token={{$.Token}}">Passwort zurücksetzen</a></p>
-      <p><button onclick="document.getElementById('deleteLink{{$e.Name}}').removeAttribute('hidden'); this.disabled=true">Benutzer löschen</button></p>
-      <p id="deleteLink{{$e.Name}}" hidden><a href="{{$.ServerPath}}/adminDeleteUser.html?name={{$e.Name}}&token={{$.Token}}">Benutzer löschen</a></p>
+      {{if $e.Invited}}<p>{{$.Translation.InvitedBy}}: <i>{{$e.InvitedBy}}</i>{{if $e.InvitationIndirect}} ({{$.Translation.Indirect}}){{end}}</p>{{end}}
+      {{if $e.Admin}}<p><strong>{{$.Translation.UserIsAdministrator}}</strong></p>{{end}}
+      <p>{{$.Translation.LastActicity}}: <i>{{$e.LastSeen}}</i></p>
+      <p><a href="{{$.ServerPath}}/profile.html?user={{$e.Name}}">{{$.Translation.Profile}}</a></p>
+      {{if $e.Admin}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=0&token={{$.Token}}">{{$.Translation.RemoveAdministrator}}</a></p>{{else}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=1&token={{$.Token}}">{{$.Translation.SetAdministrator}}</a></p>{{end}}
+      <p><a href="{{$.ServerPath}}/adminResetPasswort.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.ResetPassword}}</a></p>
+      <p><button onclick="document.getElementById('deleteLink{{$e.Name}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteUser}}</button></p>
+      <p id="deleteLink{{$e.Name}}" hidden><a href="{{$.ServerPath}}/adminDeleteUser.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.DeleteUser}}</a></p>
   </div>
   {{end}}
 
   <div>
-    <h1>Nutzer Registrieren:</h1>
+    <h1>{{.Translation.RegisterUser}}:</h1>
       <form id="register" action="{{.ServerPath}}/adminRegisterUser.html" method="POST">
       <input type="hidden" name="token" value="{{.Token}}">
-      <label for="name">Name:</label> <br>
-      <input id="name" type="text" name="name" placeholder="Name" required> <br>
-      <label for="pw">Passwort:</label> <br>
-      <input id="pw" type="password" name="pw" placeholder="Passwort" required> <br>
-      <input type="submit" id="submitButton" value="Registrieren">
+      <label for="name">{{.Translation.Name}}:</label> <br>
+      <input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required> <br>
+      <label for="pw">{{.Translation.Password}}:</label> <br>
+      <input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required> <br>
+      <input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}">
     </form>
   </div>
 
   <div id="inv">
-    <h1>Einladungen löschen:</h1>
-    <p><button onclick="document.getElementById('deleteAllInv').removeAttribute('hidden'); this.disabled=true">Alle Einladungen löschen</button></p>
-    <p id="deleteAllInv" hidden><a href="{{$.ServerPath}}/adminDeleteAllInvitations.html?token={{.Token}}">Alle Einladungen löschen</a></p>
+    <h1>{{.Translation.DeleteInvitation}}:</h1>
+    <p><button onclick="document.getElementById('deleteAllInv').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteAllInvitation}}</button></p>
+    <p id="deleteAllInv" hidden><a href="{{$.ServerPath}}/adminDeleteAllInvitations.html?token={{.Token}}">{{.Translation.DeleteAllInvitation}}</a></p>
   </div>
 
   <div>
-    <h1><a href="{{.ServerPath}}/">Zurück</a></h1>
+    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
   </div>
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

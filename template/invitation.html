@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -26,24 +26,24 @@
   {{end}}
   {{if .ShowRegister}}
   <div>
-      <h1>Einladung - jetzt neuen Benutzer registrieren</h1>
-      <p>Eingeladen von <i>{{.InvitedBy}}</i></p>
+      <h1>{{.Translation.InvitationMessage}}</h1>
+      <p>{{.Translation.InvitedBy}} <i>{{.InvitedBy}}</i></p>
         <form id="register" action="{{.ServerPath}}/registerInvitation.html" method="POST">
-        <label for="name">Name:</label> <br>
-        <input id="name" type="text" name="name" placeholder="Name" required autofocus> <br>
-        <label for="pw">Passwort:</label> <br>
-        <input id="pw" type="password" name="pw" placeholder="Passwort" required> <br>
-        <p><input type="checkbox" name="datenschutzerklärung" value="zugestimmt" required> Ich stimme zu, dass meine Daten gemäß der <a href="{{.ServerPath}}/datenschutz.html" target="_blank"> Datenschutzerklärung</a> verarbeitet werden.</p>
+        <label for="name">{{.Translation.Name}}:</label> <br>
+        <input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required autofocus> <br>
+        <label for="pw">{{.Translation.Password}}:</label> <br>
+        <input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required> <br>
+        <p><input type="checkbox" name="datenschutzerklärung" value="zugestimmt" required> {{.Translation.IAcceptPrivacyPolicy}}</p>
         <input type="hidden" name="token" value="{{.Token}}">
         <input type="hidden" name="inv" value="{{.Invitation}}"> <br>
-        <input type="submit" id="submitButton" value="Registrieren">
+        <input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}">
       </form>
   </div>
   {{end}}
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>

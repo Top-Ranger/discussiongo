@@ -1,4 +1,5 @@
 {
+    "Language": "de",
     "CanRegister": false,
     "CanReadWithoutRegister": false,
     "Address": "localhost:10800",
@@ -6,6 +7,7 @@
     "InvitationUser": false,
     "ServerPrefix": "localhost:10800",
     "ServerPath": "",
+    "CookieLanguage": "lang",
     "CookieLogin": "l",
     "CookieAuth": "auth",
     "CookieMinutes": 1440,

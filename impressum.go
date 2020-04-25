@@ -32,17 +32,16 @@ import (
 	"github.com/Top-Ranger/discussiongo/database"
 )
 
+type impressumConfigStruct struct {
+	ImpressumPath string
+	DSGVOPath     string
+}
+
 type impressumStruct struct {
-	DSGVOResponisble   string
-	Name               string
-	Address            string
-	Mail               string
-	SecondContactType  string
-	SecondContactValue string
-	Additions          string
-	ShowAdditions      bool
-	ServerPath         string
-	ForumName          string
+	Text        template.HTML
+	ServerPath  string
+	ForumName   string
+	Translation Translation
 }
 
 // DSGVOExport represents all information needed for an export according toDSGVO Art. 15 / DSGVO Art. 20.
@@ -65,19 +64,21 @@ type DSGVOExportInvitedUsers struct {
 }
 
 var (
+	impressumConfig     = impressumConfigStruct{}
 	impressum           = impressumStruct{}
 	impressumTemplate   *template.Template
+	dsgvo               = impressumStruct{}
 	dsgvoTemplate       *template.Template
 	completeDSGVOStruct = sync.Once{}
 )
 
 func init() {
-	i, err := loadImpressum("./impressum.json")
+	ic, err := loadImpressum("./impressum.json")
 	if err != nil {
 		panic(err)
 	}
 
-	impressum = i
+	impressumConfig = ic
 
 	b, err := ioutil.ReadFile("template/impressum.html")
 	if err != nil {
@@ -103,21 +104,42 @@ func init() {
 }
 
 func funcCompleteDSGVOStruct() {
-	impressum.ServerPath = config.ServerPath
-	impressum.ForumName = config.ForumName
+	t := GetDefaultTranslation()
+
+	b, err := ioutil.ReadFile(impressumConfig.ImpressumPath)
+	if err != nil {
+		panic(err)
+	}
+	impressum = impressumStruct{
+		Text:        formatPost(string(b)),
+		ServerPath:  config.ServerPath,
+		ForumName:   config.ForumName,
+		Translation: t,
+	}
+
+	b, err = ioutil.ReadFile(impressumConfig.DSGVOPath)
+	if err != nil {
+		panic(err)
+	}
+	dsgvo = impressumStruct{
+		Text:        formatPost(string(b)),
+		ServerPath:  config.ServerPath,
+		ForumName:   config.ForumName,
+		Translation: t,
+	}
 }
 
-func loadImpressum(path string) (impressumStruct, error) {
+func loadImpressum(path string) (impressumConfigStruct, error) {
 	log.Println("Loading impressum")
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
-		return impressumStruct{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
+		return impressumConfigStruct{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
 	}
 
-	i := impressumStruct{}
+	i := impressumConfigStruct{}
 	err = json.Unmarshal(b, &i)
 	if err != nil {
-		return impressumStruct{}, errors.New(fmt.Sprintln("Error while parsing config.json:", err))
+		return impressumConfigStruct{}, errors.New(fmt.Sprintln("Error while parsing config.json:", err))
 	}
 
 	return i, nil
@@ -137,13 +159,14 @@ func dsgvoHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	completeDSGVOStruct.Do(funcCompleteDSGVOStruct)
 
 	rw.WriteHeader(http.StatusOK)
-	err := dsgvoTemplate.Execute(rw, impressum)
+	err := dsgvoTemplate.Execute(rw, dsgvo)
 	if err != nil {
 		log.Println("Error executing dsgvo template:", err)
 	}
 }
 
 func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -154,18 +177,18 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 

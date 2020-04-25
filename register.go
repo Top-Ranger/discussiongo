@@ -36,6 +36,7 @@ type templateRegisterData struct {
 	Error        string
 	Captcha      string
 	CaptchaID    string
+	Translation  Translation
 }
 
 var (
@@ -57,6 +58,7 @@ func init() {
 }
 
 func registerHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	id, captcha, err := captcha.GetStringsTimed(time.Now())
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -64,14 +66,17 @@ func registerHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	captcha = fmt.Sprintf(t.CaptchaString, captcha)
+
 	td := templateRegisterData{
 		ServerPath:   config.ServerPath,
 		ForumName:    config.ForumName,
 		ShowError:    !config.CanRegister,
 		ShowRegister: config.CanRegister,
-		Error:        "Registrierung nicht möglich",
+		Error:        t.RegistrationNotPossible,
 		Captcha:      captcha,
 		CaptchaID:    id,
+		Translation:  t,
 	}
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -83,6 +88,8 @@ func registerHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
+
 	id, c, err := captcha.GetStringsTimed(time.Now())
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -96,9 +103,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Registrierung nicht möglich",
+			Error:        t.RegistrationNotPossible,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -123,9 +131,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -139,9 +148,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -155,9 +165,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Für die Registrierung muss die Datenschutzerklärung akzeptiert werden.",
+			Error:        t.RegistrationNeedsPrivacyPolicy,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -173,9 +184,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Captcha ungültig",
+			Error:        t.CaptchaInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -189,9 +201,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Captcha ungültig",
+			Error:        t.CaptchaInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -207,9 +220,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Captcha ungültig",
+			Error:        t.CaptchaInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -223,9 +237,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Captcha ungültig",
+			Error:        t.CaptchaInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -241,9 +256,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Captcha ungültig",
+			Error:        t.CaptchaInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -259,9 +275,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Name ungültig",
+			Error:        t.NameInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -275,9 +292,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Name Ungültig",
+			Error:        t.NameInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -291,9 +309,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Name Ungültig",
+			Error:        t.NameInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -308,9 +327,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Benutzername nicht erlaubt",
+			Error:        t.NameInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -331,9 +351,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Benutzer existiert bereits - anderen Benutzernamen wählen",
+			Error:        t.UserExists,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -349,9 +370,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Passwort Ungültig",
+			Error:        t.PasswordInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -365,9 +387,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        "Passwort Ungültig",
+			Error:        t.PasswordInvalid,
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {
@@ -381,9 +404,10 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ForumName:    config.ForumName,
 			ShowError:    true,
 			ShowRegister: config.CanRegister,
-			Error:        fmt.Sprintln("Passwort zu kurz, Mindestlänge ist", config.LengthPassword),
+			Error:        fmt.Sprintf(t.PasswortTooShort, config.LengthPassword),
 			Captcha:      c,
 			CaptchaID:    id,
+			Translation:  t,
 		}
 		err := registerTemplate.Execute(rw, td)
 		if err != nil {

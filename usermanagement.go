@@ -36,11 +36,12 @@ var (
 )
 
 type usermanagementTemplateData struct {
-	ServerPath string
-	ForumName  string
-	Username   string
-	User       []userManagementStruct
-	Token      string
+	ServerPath  string
+	ForumName   string
+	Username    string
+	User        []userManagementStruct
+	Token       string
+	Translation Translation
 }
 
 type userManagementStruct struct {
@@ -115,11 +116,12 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	td := usermanagementTemplateData{
-		ServerPath: config.ServerPath,
-		ForumName:  config.ForumName,
-		Username:   user,
-		User:       make([]userManagementStruct, 0, len(userlist)),
-		Token:      token,
+		ServerPath:  config.ServerPath,
+		ForumName:   config.ForumName,
+		Username:    user,
+		User:        make([]userManagementStruct, 0, len(userlist)),
+		Token:       token,
+		Translation: GetDefaultTranslation(),
 	}
 
 	for i := range userlist {
@@ -142,6 +144,7 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -169,47 +172,47 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
 	name, ok := q["name"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(name) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
 	admin, ok := q["admin"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Admin wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(admin) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Admin wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if admin[0] != "0" && admin[0] != "1" {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Admin ist falsch. Muss 0 oder 1 sein."))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
@@ -223,6 +226,7 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -250,30 +254,30 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
 	name, ok := q["name"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(name) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
@@ -293,10 +297,11 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 		rw.Write([]byte(err.Error()))
 		return
 	}
-	rw.Write([]byte(fmt.Sprintf("Username: %s\nPasswort: %s\n%s/usermanagement.html#user%s", name[0], newPW, config.ServerPrefix, name[0])))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %s\n%s/usermanagement.html#user%s", t.User, name[0], t.Password, newPW, config.ServerPrefix, name[0])))
 }
 
 func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -331,41 +336,41 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
 	name, ok := q["name"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(name) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(strings.TrimSpace(name[0])) == 0 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
 	if protectedUserRegexp.Match([]byte(name[0])) {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Benutzername nicht erlaubt"))
+		rw.Write([]byte(t.NameInvalid))
 		return
 	}
 
@@ -378,24 +383,24 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 
 	if verify {
 		rw.WriteHeader(http.StatusForbidden)
-		rw.Write([]byte("Benutzer existiert bereits - anderen Benutzernamen wählen"))
+		rw.Write([]byte(t.UserExists))
 		return
 	}
 
 	pw, ok := q["pw"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Password wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(pw) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Password wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(pw[0]) < config.LengthPassword {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(fmt.Sprintln("Neues Passwort zu kurz, Mindestlänge ist", config.LengthPassword)))
+		rw.Write([]byte(fmt.Sprintf(t.PasswortTooShort, config.LengthPassword)))
 		return
 	}
 
@@ -410,6 +415,7 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 }
 
 func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -437,30 +443,30 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
 	name, ok := q["name"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 	if len(name) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Name wrong"))
+		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
@@ -480,10 +486,11 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 	count += c
 
-	rw.Write([]byte(fmt.Sprintf("Username: %s\nGelöschte Daten: %d\n%s/usermanagement.html#user%s", name[0], count, config.ServerPrefix, name[0])))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))
 }
 
 func usermanagementAdminDeleteAllInvitationsHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	t := GetDefaultTranslation()
 	loggedIn, user := TestUser(r)
 
 	if !loggedIn {
@@ -511,18 +518,18 @@ func usermanagementAdminDeleteAllInvitationsHandleFunc(rw http.ResponseWriter, r
 	token, ok := q["token"]
 	if !ok {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	if len(token) != 1 {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte("Invalid token"))
+		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 

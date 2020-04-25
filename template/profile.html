@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="de">
+<html lang="{{.Translation.Language}}">
 
 <head>
   <title>Profil: {{.User}} - {{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!</title>
@@ -20,18 +20,18 @@
   </header>
 
   <div>
-    <h1><a href="#" onclick="window.history.back();return false;">Zurück</a></h1>
+    <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
   </div>
 
   <div>
-    <h1>Profil</h1>
+    <h1>{{.Translation.Profile}}</h1>
   </div>
 
   <div>
-      <h2>Benutzer</h2>
-      <p>Name: {{.User}}</p>
+      <h2>{{.Translation.User}}</h2>
+      <p>{{.Translation.Name}}: {{.User}}</p>
       {{if .HasComment}}
-      <h2 id="comment">Kommentar</h2>
+      <h2 id="comment">{{.Translation.Comment}}</h2>
       <div class="comment">
         {{.Comment}}
       </div>
@@ -39,35 +39,35 @@
   </div>
 
   <div>
-    <h2>Themen:</h2>
+    <h2>{{.Translation.Topics}}:</h2>
   </div>
 
   {{range $i, $e := .Topics }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> Geschlossen</strong>{{else if $e.Pinned}}<strong> Angepinnt</strong>{{end}}</p>
-    <p class="metadata">Letzte Änderung: {{$e.Modified}}</p>
+    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> {{$.Translation.Closed}}</strong>{{else if $e.Pinned}}<strong>{{$.Translation.Pinned}}</strong>{{end}}</p>
+    <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
   </div>
   {{end}}
 
   <div>
-    <h2>Beiträge:</h2>
+    <h2>{{.Translation.Posts}}:</h2>
   </div>
 
   {{range $i, $e := .Posts }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="post{{$e.ID}}">
-    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.TID}}#post{{$e.ID}}">Link zum Beitrag</a></p>
+    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.TID}}#post{{$e.ID}}">{{$.Translation.GoToPost}}</a></p>
     {{$e.Content}}
-    <p class="metadata">Erstellt: {{$e.Date}}</p>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
   </div>
   {{end}}
 
   <div>
-    <h1><a href="#" onclick="window.history.back();return false;">Zurück</a></h1>
+    <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
   </div>
 
   <footer>
     <div>
-      Created by <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>Impressum</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>Datenschutzerklärung</u></a>
+      {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
     </div>
   </footer>
 </body>
