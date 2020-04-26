@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 )
@@ -110,7 +111,37 @@ var rwlock sync.RWMutex
 var translationPath = "./translation"
 
 // GetTranslation returns a Translation struct of the given language.
+// This function always loads translations from disk. Try to use GetDefaultTranslation where possible.
 func GetTranslation(language string) (Translation, error) {
+	t, err := getSingleTranslation(language)
+	if err != nil {
+		return Translation{}, err
+	}
+	d, err := getSingleTranslation(defaultLanguage)
+	if err != nil {
+		return Translation{}, err
+	}
+
+	// Set unknown strings to default value
+	vp := reflect.ValueOf(&t)
+	dv := reflect.ValueOf(d)
+	v := vp.Elem()
+
+	for i := 0; i < v.NumField(); i++ {
+		if !v.Field(i).CanSet() {
+			continue
+		}
+		if v.Field(i).Kind() != reflect.String {
+			continue
+		}
+		if v.Field(i).String() == "" {
+			v.Field(i).SetString(dv.Field(i).String())
+		}
+	}
+	return t, nil
+}
+
+func getSingleTranslation(language string) (Translation, error) {
 	if language == "" {
 		return GetDefaultTranslation(), nil
 	}
