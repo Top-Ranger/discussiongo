@@ -44,7 +44,7 @@
 
   {{range $i, $e := .Topics }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> {{$.Translation.Closed}}</strong>{{else if $e.Pinned}}<strong>{{$.Translation.Pinned}}</strong>{{end}}</p>
+    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> {{$.Translation.Closed}}</strong>{{else if $e.Pinned}}<strong> {{$.Translation.Pinned}}</strong>{{end}}</p>
     <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
   </div>
   {{end}}
