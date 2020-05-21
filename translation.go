@@ -101,6 +101,7 @@ type Translation struct {
 	OldPasswordWrong               string
 	InvalidRequest                 string
 	Deleted                        string
+	LoginRequired                  string
 }
 
 const defaultLanguage = "de"

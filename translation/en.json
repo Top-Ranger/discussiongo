@@ -85,5 +85,6 @@
     "TopicIsClosed": "Topic is closed",
     "OldPasswordWrong": "Old password is incorrect",
     "InvalidRequest": "Invalid request",
-    "Deleted": "Deleted objects"
+    "Deleted": "Deleted objects",
+    "LoginRequired": "Login required"
 }

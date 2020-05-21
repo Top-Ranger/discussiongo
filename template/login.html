@@ -38,6 +38,13 @@
     <a href="{{.ServerPath}}/register.html">{{.Translation.RegisterNow}}</a>
     {{end}}
   </div>
+
+  <script>
+    if(!document.hasFocus()) {
+      var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\n{{.Translation.LoginRequired}}", {"icon": "{{.ServerPath}}/static/Logo.svg"});
+    }
+  </script>
+
   {{else}}
   <div>
       <h1>{{.Translation.Logout}}: {{.Username}}</h1>
