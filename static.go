@@ -133,6 +133,8 @@ func fileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			rw.Header().Set("Content-Type", "text/css")
 		case strings.HasSuffix(path, ".ttf"):
 			rw.Header().Set("Content-Type", "application/x-font-truetype")
+		case strings.HasSuffix(path, ".js"):
+			rw.Header().Set("Content-Type", "application/javascript")
 		default:
 			rw.Header().Set("Content-Type", "text/plain")
 		}
