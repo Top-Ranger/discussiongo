@@ -123,3 +123,9 @@ pre {
 code {
     margin: 1em;   
 }
+
+blockquote {
+    border-left: 0.5em solid var(--contra-dark);
+    padding-left: 1em;
+    margin-left: 1em;
+}
