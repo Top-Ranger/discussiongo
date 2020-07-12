@@ -121,6 +121,9 @@
       xhr.onload = function() {
         var preview = document.getElementById("preview")
         preview.innerHTML = xhr.response
+        preview.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightBlock(block);
+        });
       }
       xhr.send(form);
     }
