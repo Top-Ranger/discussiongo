@@ -49,7 +49,7 @@ func init() {
 	etagCompareApache = strings.Join([]string{etagCompare, "-"}, "")       // Dirty hack for apache2, who appends -gzip inside the quotes if the file is compressed, thus preventing If-None-Match matching the ETag
 	etagCompareCaddy = strings.Join([]string{"W/", etagCompare, "\""}, "") // Dirty hack for caddy, who appends W/ before the quotes if the file is compressed, thus preventing If-None-Match matching the ETag
 
-	for _, d := range []string{"static/", "font/"} {
+	for _, d := range []string{"static/", "font/", "js/"} {
 		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				log.Panicln("Error wile caching files:", err)
@@ -101,6 +101,7 @@ func init() {
 
 	http.HandleFunc("/static/", fileHandleFunc)
 	http.HandleFunc("/font/", fileHandleFunc)
+	http.HandleFunc("/js/", fileHandleFunc)
 	http.HandleFunc("/css/", cssHandleFunc)
 }
 

@@ -119,3 +119,7 @@ th {
 pre {
     white-space: pre-wrap;
 }
+
+code {
+    margin: 1em;   
+}

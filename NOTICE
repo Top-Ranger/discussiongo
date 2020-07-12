@@ -11,7 +11,6 @@ But don't expect me to go out of my way implementing your requests.
 I'm releasing the software in the hope that it might be helpful to others.
 
 To run it, simply use the following commands:
-go get -u ./...
 go build
 ./discussiongo
 
@@ -25,3 +24,4 @@ DiscussionGo! is licenced under Apache-2.0.
 Bundeled libraries
 ++++++++++++++++++++++++++++++++++++++++++++
 DiscussionGo! is bundeled with the Oxygen font, which is licenced under the SIL Open Font License, Version 1.1.
+DiscussionGo! is bundeled with highlight.js (https://highlightjs.org/), which is licenced under the BSD 3-Clause License.

@@ -79,6 +79,7 @@ func init() {
 	policy.AllowLists()
 	policy.AllowStandardURLs()
 	policy.AllowAttrs("href").OnElements("a")
+	policy.AllowAttrs("class").OnElements("code")
 	policy.RequireNoReferrerOnLinks(true)
 	policy.AllowTables()
 	policy.AddTargetBlankToFullyQualifiedLinks(true)
