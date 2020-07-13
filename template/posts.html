@@ -8,9 +8,12 @@
   <meta name="author" content="Marcus Soll"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="author" href="https://msoll.eu/">
+  <link rel="stylesheet" href="{{.ServerPath}}/css/katex.min.css">
   <link rel="stylesheet" href="{{.ServerPath}}/css/vs.css">
   <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
   <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
+  <script src="{{.ServerPath}}/js/katex.min.js"></script>
+  <script src="{{.ServerPath}}/js/auto-render.min.js"></script>
   <script src="{{.ServerPath}}/js/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
@@ -63,7 +66,7 @@
   <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
 
   {{range $i, $e := .Posts }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="post{{$e.ID}}">
+  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.ID}}">
     {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
     {{$e.Content}}
     <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
@@ -120,7 +123,8 @@
       xhr.open("POST", "{{$.ServerPath}}/getFormattedPost/", true);
       xhr.onload = function() {
         var preview = document.getElementById("preview")
-        preview.innerHTML = xhr.response
+        preview.innerHTML = xhr.response;
+        renderMathInElement(preview);
         preview.querySelectorAll('pre code').forEach((block) => {
           hljs.highlightBlock(block);
         });
@@ -174,6 +178,11 @@
     xhr.send();
   }
   setInterval(reloader, 60000);
+
+  var elements = document.getElementsByClassName("post-element");
+  for(var i = 0; i < elements.length; i++) {
+    renderMathInElement(elements[i]);
+  }
   </script>
 
   <footer>

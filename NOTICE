@@ -25,3 +25,5 @@ Bundeled libraries
 ++++++++++++++++++++++++++++++++++++++++++++
 DiscussionGo! is bundeled with the Oxygen font, which is licenced under the SIL Open Font License, Version 1.1.
 DiscussionGo! is bundeled with highlight.js (https://highlightjs.org/), which is licenced under the BSD 3-Clause License.
+DiscussionGo! is bundeled with the KaTeX (https://katex.org/), which is licenced under the MIT License.
+DiscussionGo! is bundeled with the KaTeX fonts, which are licenced under the SIL Open Font License, Version 1.1.
