@@ -13,5 +13,6 @@
     "CookieMinutes": 1440,
     "LengthPassword": 12,
     "CreateInvitationMessage": "",
-    "ForumName": ""
+    "ForumName": "",
+    "LogFailedLogin": true
 }

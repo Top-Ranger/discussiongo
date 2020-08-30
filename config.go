@@ -41,6 +41,7 @@ type configData struct {
 	LengthPassword          int
 	CreateInvitationMessage string
 	ForumName               string
+	LogFailedLogin          bool
 }
 
 var config = configData{}

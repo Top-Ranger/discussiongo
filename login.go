@@ -194,7 +194,9 @@ func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if !b {
-		log.Println("Invalid login from", user[0])
+		if config.LogFailedLogin {
+			log.Printf("Failed login from %s", r.RemoteAddr)
+		}
 		returnError()
 		return
 	}
