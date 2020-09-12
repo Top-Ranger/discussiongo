@@ -20,7 +20,9 @@ import (
 	"html/template"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Top-Ranger/auth/data"
@@ -195,7 +197,7 @@ func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	if !b {
 		if config.LogFailedLogin {
-			log.Printf("Failed login from %s", r.RemoteAddr)
+			log.Printf("Failed login from %s", GetRealIP(r))
 		}
 		returnError()
 		return
@@ -284,4 +286,84 @@ func loginPageHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error executing login template:", err)
 	}
+}
+
+// GetRealIP tries to fing the real IP address of a client.
+// If an error is found, that error will be returned instead of an IP address.
+// A reverse proxy is only assumed if address is a loopback device (to avoid spoofing)
+func GetRealIP(r *http.Request) string {
+	ipPart, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return err.Error()
+	}
+	ip := net.ParseIP(strings.SplitN(ipPart, "%", 1)[0])
+	if ip != nil && !ip.IsLoopback() {
+		// We found a valid IP, this is most likely correct
+		goto returnIP
+	}
+
+	// This is likely behind a reverse proxy, try to find real address
+	{
+		header := r.Header.Get("Forwarded")
+		if header != "" {
+			headerParts := strings.Split(header, ";")
+			for i := range headerParts {
+				// Find for part of header
+				if strings.HasPrefix(headerParts[i], "for=") {
+					headerParts[i] = strings.TrimPrefix(headerParts[i], "for=")
+					ip = processSplittedHeader(strings.Split(headerParts[i], ","))
+					if ip != nil {
+						goto returnIP
+					}
+				}
+			}
+		}
+	}
+	{
+		header := r.Header.Get("X-Forwarded-For")
+		if header != "" {
+			ip = processSplittedHeader(strings.Split(header, ","))
+			if ip != nil {
+				goto returnIP
+			}
+
+		}
+	}
+
+returnIP:
+	if ip == nil {
+		return "unknown IP"
+	}
+	return ip.String()
+}
+
+func processSplittedHeader(split []string) net.IP {
+	for i := len(split) - 1; i >= 0; i++ {
+		// Go back to forward to find irst non local address. This way, fake addresses can't be spoofed by sending header (assumed proxy is trusted)
+
+		// Assume entry is an IP address. Handle other cases later.
+		s := split[i]
+		// Case IPv6 with brackets - should do nothing in all other cases
+		s = strings.TrimPrefix(s, "[")
+		s = strings.TrimSuffix(s, "]")
+		ip := net.ParseIP(strings.SplitN(s, "%", 1)[0])
+
+		if ip == nil {
+			// Maybe has form host:port?
+			ipPart, _, err := net.SplitHostPort(split[i])
+			if err != nil {
+				// Invalid entry - something is wrong, stop processing
+				return nil
+			}
+			ip := net.ParseIP(strings.SplitN(ipPart, "%", 1)[0])
+			if ip == nil {
+				// Invalid entry - something is wrong, stop processing
+				return nil
+			}
+		}
+		if ip != nil && !ip.IsLoopback() {
+			return ip
+		}
+	}
+	return nil
 }
