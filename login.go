@@ -21,7 +21,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -44,11 +43,9 @@ type loginLogoutData struct {
 }
 
 func init() {
-	b, err := os.ReadFile("template/login.html")
-	if err != nil {
-		panic(err)
-	}
-	loginTemplate, err = template.New("login").Parse(string(b))
+	var err error
+
+	loginTemplate, err = template.ParseFS(templateFiles, "template/login.html")
 	if err != nil {
 		panic(err)
 	}

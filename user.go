@@ -20,7 +20,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"time"
 
@@ -52,11 +51,9 @@ var (
 )
 
 func init() {
-	b, err := os.ReadFile("template/user.html")
-	if err != nil {
-		panic(err)
-	}
-	userTemplate, err = template.New("user").Parse(string(b))
+	var err error
+
+	userTemplate, err = template.ParseFS(templateFiles, "template/user.html")
 	if err != nil {
 		panic(err)
 	}

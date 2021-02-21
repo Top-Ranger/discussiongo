@@ -20,7 +20,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/Top-Ranger/discussiongo/database"
@@ -42,17 +41,9 @@ var (
 )
 
 func init() {
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
+	var err error
 
-	b, err := os.ReadFile("template/profile.html")
-	if err != nil {
-		panic(err)
-	}
-	profileTemplate, err = template.New("profile").Funcs(funcMap).Parse(string(b))
+	profileTemplate, err = template.New("profile").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/profile.html")
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +136,7 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
-	err = profileTemplate.Execute(rw, td)
+	err = profileTemplate.ExecuteTemplate(rw, "profile.html", td)
 	if err != nil {
 		log.Println("Error executing post template:", err)
 	}

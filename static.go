@@ -16,92 +16,43 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// CSSData is a helper struct to include the server path into CSS files.
-type CSSData struct {
-	ServerPath string
-}
+//go:embed static font js css
+var cachedFiles embed.FS
+var cssTemplates *template.Template
 
 var (
-	// Stores files from css/ static/ and font/ in memory
-	cachedFiles = make(map[string][]byte, 50)
-	cachedCSS   = make(map[string]*template.Template, 50)
-
 	etag              = fmt.Sprint("\"", strconv.FormatInt(time.Now().Unix(), 10), "\"")
 	etagCompareApache = ""
 	etagCompareCaddy  = ""
 )
 
 func init() {
-	etag := fmt.Sprint("\"", strconv.FormatInt(time.Now().Unix(), 10), "\"")
+	var err error
+
+	cssTemplates, err = template.ParseFS(cachedFiles, "css/*")
+	if err != nil {
+		panic(err)
+	}
+
 	etagCompare := strings.TrimSuffix(etag, "\"")
 	etagCompareApache = strings.Join([]string{etagCompare, "-"}, "")       // Dirty hack for apache2, who appends -gzip inside the quotes if the file is compressed, thus preventing If-None-Match matching the ETag
 	etagCompareCaddy = strings.Join([]string{"W/", etagCompare, "\""}, "") // Dirty hack for caddy, who appends W/ before the quotes if the file is compressed, thus preventing If-None-Match matching the ETag
 
-	for _, d := range []string{"static/", "font/", "js/"} {
-		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				log.Panicln("Error wile caching files:", err)
-			}
-
-			if info.Mode().IsRegular() {
-				log.Println("Caching file", path)
-
-				b, err := os.ReadFile(path)
-				if err != nil {
-					log.Println("Error reading file:", err)
-					return err
-				}
-				cachedFiles[path] = b
-				return nil
-			}
-			log.Println("Not caching", path)
-			return nil
-		})
-	}
-
-	for _, d := range []string{"css/"} {
-		filepath.Walk(d, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				log.Panicln("Error wile caching files:", err)
-			}
-
-			if info.Mode().IsRegular() {
-				log.Println("Caching file", path)
-
-				b, err := os.ReadFile(path)
-				if err != nil {
-					log.Println("Error reading file:", err)
-					return err
-				}
-				t, err := template.New(path).Parse(string(b))
-				if err != nil {
-					log.Println("Error reading file (parsing):", err)
-					return err
-				}
-				cachedCSS[path] = t
-
-				return nil
-			}
-			log.Println("Not caching", path)
-			return nil
-		})
-	}
-
 	http.HandleFunc("/static/", fileHandleFunc)
 	http.HandleFunc("/font/", fileHandleFunc)
 	http.HandleFunc("/js/", fileHandleFunc)
-	http.HandleFunc("/css/", cssHandleFunc)
+	http.HandleFunc("/css/", fileHandleFunc)
 }
 
 func fileHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -119,8 +70,20 @@ func fileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	// Send file if existing in cache
 	path := r.URL.Path
 	path = strings.TrimPrefix(path, "/")
-	data, ok := cachedFiles[path]
-	if !ok {
+
+	if strings.HasPrefix(path, "css/") {
+		// special case
+		path = strings.TrimPrefix(path, "css/")
+		rw.Header().Set("Content-Type", "text/css")
+		err := cssTemplates.ExecuteTemplate(rw, path, struct{ ServerPath string }{config.ServerPath})
+		if err != nil {
+			log.Println("server:", err)
+		}
+		return
+	}
+
+	data, err := cachedFiles.Open(path)
+	if err != nil {
 		rw.WriteHeader(http.StatusNotFound)
 	} else {
 		rw.Header().Set("ETag", etag)
@@ -137,40 +100,6 @@ func fileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		default:
 			rw.Header().Set("Content-Type", "text/plain")
 		}
-		rw.Write(data)
-	}
-}
-
-func cssHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	// Check for ETag
-	v, ok := r.Header["If-None-Match"]
-	if ok {
-		for i := range v {
-			if v[i] == etag || v[i] == etagCompareCaddy || strings.HasPrefix(v[i], etagCompareApache) {
-				rw.WriteHeader(http.StatusNotModified)
-				return
-			}
-		}
-	}
-
-	// Send file if existing in cache
-	path := r.URL.Path
-	path = strings.TrimPrefix(path, "/")
-	data, ok := cachedCSS[path]
-	if !ok {
-		rw.WriteHeader(http.StatusNotFound)
-	} else {
-		rw.Header().Set("ETag", etag)
-		rw.Header().Set("Cache-Control", "public, max-age=43200")
-		rw.Header().Set("Content-Type", "text/css")
-
-		c := CSSData{
-			ServerPath: config.ServerPath,
-		}
-
-		err := data.Execute(rw, c)
-		if err != nil {
-			log.Println("Error executing CSS template:", err)
-		}
+		io.Copy(rw, data)
 	}
 }

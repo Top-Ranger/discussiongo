@@ -21,7 +21,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -73,6 +72,8 @@ var (
 )
 
 func init() {
+	var err error
+
 	policy = bluemonday.NewPolicy()
 	policy.AllowElements("a", "b", "blockquote", "br", "caption", "code", "del", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "mark", "p", "pre", "q", "s", "samp", "strong", "sub", "sup", "u")
 	policy.AllowAttrs("disabled", "type", "checked").OnElements("input")
@@ -85,17 +86,7 @@ func init() {
 	policy.AddTargetBlankToFullyQualifiedLinks(true)
 	policy.RequireNoFollowOnFullyQualifiedLinks(true)
 
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
-
-	b, err := os.ReadFile("template/posts.html")
-	if err != nil {
-		panic(err)
-	}
-	postTemplate, err = template.New("posts").Funcs(funcMap).Parse(string(b))
+	postTemplate, err = template.New("posts").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/posts.html")
 	if err != nil {
 		panic(err)
 	}
@@ -235,7 +226,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
-	err = postTemplate.Execute(rw, td)
+	err = postTemplate.ExecuteTemplate(rw, "posts.html", td)
 	if err != nil {
 		log.Println("Error executing post template:", err)
 	}

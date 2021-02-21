@@ -22,7 +22,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -54,17 +53,9 @@ type userManagementStruct struct {
 }
 
 func init() {
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
+	var err error
 
-	b, err := os.ReadFile("template/usermanagement.html")
-	if err != nil {
-		panic(err)
-	}
-	usermanagementTemplate, err = template.New("usermanagement").Funcs(funcMap).Parse(string(b))
+	usermanagementTemplate, err = template.New("usermanagement").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/usermanagement.html")
 	if err != nil {
 		panic(err)
 	}
@@ -137,7 +128,7 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
-	err = usermanagementTemplate.Execute(rw, td)
+	err = usermanagementTemplate.ExecuteTemplate(rw, "usermanagement.html", td)
 	if err != nil {
 		log.Println("Error executing user management template:", err)
 	}

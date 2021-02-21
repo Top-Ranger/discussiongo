@@ -20,7 +20,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -61,17 +60,9 @@ var (
 )
 
 func init() {
-	funcMap := template.FuncMap{
-		"even": func(i int) bool {
-			return i%2 == 0
-		},
-	}
+	var err error
 
-	b, err := os.ReadFile("template/topics.html")
-	if err != nil {
-		panic(err)
-	}
-	topicTemplate, err = template.New("topic").Funcs(funcMap).Parse(string(b))
+	topicTemplate, err = template.New("topic").Funcs(evenOddFuncMap).ParseFS(templateFiles, "template/topics.html")
 	if err != nil {
 		panic(err)
 	}
@@ -180,7 +171,7 @@ func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
-	err = topicTemplate.Execute(rw, td)
+	err = topicTemplate.ExecuteTemplate(rw, "topics.html", td)
 	if err != nil {
 		log.Println("Error executing topic template:", err)
 	}

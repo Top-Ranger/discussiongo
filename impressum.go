@@ -80,20 +80,12 @@ func init() {
 
 	impressumConfig = ic
 
-	b, err := os.ReadFile("template/impressum.html")
-	if err != nil {
-		panic(err)
-	}
-	impressumTemplate, err = template.New("impressum").Parse(string(b))
+	impressumTemplate, err = template.ParseFS(templateFiles, "template/impressum.html")
 	if err != nil {
 		panic(err)
 	}
 
-	b, err = os.ReadFile("template/dsgvo.html")
-	if err != nil {
-		panic(err)
-	}
-	dsgvoTemplate, err = template.New("dsgvo").Parse(string(b))
+	dsgvoTemplate, err = template.ParseFS(templateFiles, "template/dsgvo.html")
 	if err != nil {
 		panic(err)
 	}

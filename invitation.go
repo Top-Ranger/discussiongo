@@ -20,7 +20,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -45,11 +44,9 @@ var (
 )
 
 func init() {
-	b, err := os.ReadFile("template/invitation.html")
-	if err != nil {
-		panic(err)
-	}
-	invitationTemplate, err = template.New("invitation").Parse(string(b))
+	var err error
+
+	invitationTemplate, err = template.ParseFS(templateFiles, "template/invitation.html")
 	if err != nil {
 		panic(err)
 	}
