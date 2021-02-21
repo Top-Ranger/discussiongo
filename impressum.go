@@ -21,9 +21,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -80,7 +80,7 @@ func init() {
 
 	impressumConfig = ic
 
-	b, err := ioutil.ReadFile("template/impressum.html")
+	b, err := os.ReadFile("template/impressum.html")
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +89,7 @@ func init() {
 		panic(err)
 	}
 
-	b, err = ioutil.ReadFile("template/dsgvo.html")
+	b, err = os.ReadFile("template/dsgvo.html")
 	if err != nil {
 		panic(err)
 	}
@@ -106,7 +106,7 @@ func init() {
 func funcCompleteDSGVOStruct() {
 	t := GetDefaultTranslation()
 
-	b, err := ioutil.ReadFile(impressumConfig.ImpressumPath)
+	b, err := os.ReadFile(impressumConfig.ImpressumPath)
 	if err != nil {
 		panic(err)
 	}
@@ -117,7 +117,7 @@ func funcCompleteDSGVOStruct() {
 		Translation: t,
 	}
 
-	b, err = ioutil.ReadFile(impressumConfig.DSGVOPath)
+	b, err = os.ReadFile(impressumConfig.DSGVOPath)
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +131,7 @@ func funcCompleteDSGVOStruct() {
 
 func loadImpressum(path string) (impressumConfigStruct, error) {
 	log.Println("Loading impressum")
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return impressumConfigStruct{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
 	}

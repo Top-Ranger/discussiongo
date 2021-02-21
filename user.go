@@ -18,9 +18,9 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 
@@ -52,7 +52,7 @@ var (
 )
 
 func init() {
-	b, err := ioutil.ReadFile("template/user.html")
+	b, err := os.ReadFile("template/user.html")
 	if err != nil {
 		panic(err)
 	}

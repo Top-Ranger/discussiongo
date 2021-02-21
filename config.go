@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -58,7 +58,7 @@ func init() {
 
 func loadConfig(path string) (configData, error) {
 	log.Println("Loading config")
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return configData{}, errors.New(fmt.Sprintln("Can not read config.json:", err))
 	}

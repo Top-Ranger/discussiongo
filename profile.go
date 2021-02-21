@@ -18,9 +18,9 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Top-Ranger/discussiongo/database"
@@ -48,7 +48,7 @@ func init() {
 		},
 	}
 
-	b, err := ioutil.ReadFile("template/profile.html")
+	b, err := os.ReadFile("template/profile.html")
 	if err != nil {
 		panic(err)
 	}

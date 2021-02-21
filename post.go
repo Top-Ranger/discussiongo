@@ -19,9 +19,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -91,7 +91,7 @@ func init() {
 		},
 	}
 
-	b, err := ioutil.ReadFile("template/posts.html")
+	b, err := os.ReadFile("template/posts.html")
 	if err != nil {
 		panic(err)
 	}

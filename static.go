@@ -18,7 +18,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -58,7 +57,7 @@ func init() {
 			if info.Mode().IsRegular() {
 				log.Println("Caching file", path)
 
-				b, err := ioutil.ReadFile(path)
+				b, err := os.ReadFile(path)
 				if err != nil {
 					log.Println("Error reading file:", err)
 					return err
@@ -80,7 +79,7 @@ func init() {
 			if info.Mode().IsRegular() {
 				log.Println("Caching file", path)
 
-				b, err := ioutil.ReadFile(path)
+				b, err := os.ReadFile(path)
 				if err != nil {
 					log.Println("Error reading file:", err)
 					return err

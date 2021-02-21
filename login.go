@@ -18,10 +18,10 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -44,7 +44,7 @@ type loginLogoutData struct {
 }
 
 func init() {
-	b, err := ioutil.ReadFile("template/login.html")
+	b, err := os.ReadFile("template/login.html")
 	if err != nil {
 		panic(err)
 	}

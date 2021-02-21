@@ -20,9 +20,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -60,7 +60,7 @@ func init() {
 		},
 	}
 
-	b, err := ioutil.ReadFile("template/usermanagement.html")
+	b, err := os.ReadFile("template/usermanagement.html")
 	if err != nil {
 		panic(err)
 	}

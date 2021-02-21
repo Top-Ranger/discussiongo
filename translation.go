@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -154,7 +153,7 @@ func getSingleTranslation(language string) (Translation, error) {
 		return Translation{}, fmt.Errorf("no translation for language '%s'", language)
 	}
 
-	b, err := ioutil.ReadFile(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return Translation{}, err
 	}
