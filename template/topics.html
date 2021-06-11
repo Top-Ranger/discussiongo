@@ -150,6 +150,7 @@
   <script>
   function reloader() {
     var xhr = new XMLHttpRequest();
+    xhr.timeout = 10000;
     xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
     xhr.responseType = "json";
     xhr.onload = function() {

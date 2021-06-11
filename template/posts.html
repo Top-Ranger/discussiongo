@@ -120,6 +120,7 @@
       form.append("post", ta.value);
       form.append("token", "{{.Token}}")
       var xhr = new XMLHttpRequest();
+      xhr.timeout = 10000;
       xhr.open("POST", "{{$.ServerPath}}/getFormattedPost/", true);
       xhr.onload = function() {
         var preview = document.getElementById("preview")
@@ -129,6 +130,12 @@
           hljs.highlightBlock(block);
         });
       }
+      xhr.ontimeout = function() {
+        document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
+      };
+      xhr.onerror = function() {
+        document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
+      };
       xhr.send(form);
     }
   </script>
@@ -156,6 +163,7 @@
   <script>
   function reloader() {
     var xhr = new XMLHttpRequest();
+    xhr.timeout = 10000;
     xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
     xhr.responseType = "json";
     xhr.onload = function() {
@@ -174,7 +182,7 @@
             }
           }
         }
-    }
+    };
     xhr.send();
   }
   setInterval(reloader, 60000);

@@ -86,5 +86,6 @@
     "OldPasswordWrong": "Old password is incorrect",
     "InvalidRequest": "Invalid request",
     "Deleted": "Deleted objects",
-    "LoginRequired": "Login required"
+    "LoginRequired": "Login required",
+    "ErrorOccured": "An error occured. Please try again later."
 }
