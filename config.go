@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,6 +42,9 @@ type configData struct {
 	CreateInvitationMessage string
 	ForumName               string
 	LogFailedLogin          bool
+	EnableFileUpload        bool
+	EnableFileUploadAdmin   bool
+	FileMaxMB               int
 }
 
 var config = configData{}
@@ -67,6 +70,10 @@ func loadConfig(path string) (configData, error) {
 	err = json.Unmarshal(b, &c)
 	if err != nil {
 		return configData{}, errors.New(fmt.Sprintln("Error while parsing config.json:", err))
+	}
+
+	if c.EnableFileUpload && !c.EnableFileUploadAdmin {
+		return configData{}, errors.New("EnableFileUpload overwrites EnableFileUploadAdmin")
 	}
 
 	// sanity checks

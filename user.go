@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/files"
 )
 
 type templateUserData struct {
@@ -454,6 +455,15 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	c, err := accesstimes.DeleteUser(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	count += c
+
+	c, err = files.DeleteUserFiles(user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

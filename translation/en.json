@@ -87,5 +87,8 @@
     "InvalidRequest": "Invalid request",
     "Deleted": "Deleted objects",
     "LoginRequired": "Login required",
-    "ErrorOccured": "An error occured. Please try again later."
+    "ErrorOccured": "An error occured. Please try again later.",
+    "NewFile": "New File",
+    "DeleteFile": "Delete file",
+    "Files": "Files"
 }

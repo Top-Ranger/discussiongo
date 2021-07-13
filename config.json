@@ -14,5 +14,8 @@
     "LengthPassword": 12,
     "CreateInvitationMessage": "",
     "ForumName": "",
-    "LogFailedLogin": true
+    "LogFailedLogin": true,
+    "EnableFileUpload": true,
+    "EnableFileUploadAdmin": true,
+    "FileMaxMB": 100
 }

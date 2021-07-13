@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/files"
 )
 
 type templateProfileData struct {
@@ -33,6 +34,7 @@ type templateProfileData struct {
 	HasComment  bool
 	Topics      []topicData
 	Posts       []postData
+	Files       []fileData
 	Translation Translation
 }
 
@@ -90,6 +92,13 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	files, err := files.GetFileMetadataForUser(u.Name)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	td := templateProfileData{
 		ServerPath:  config.ServerPath,
 		ForumName:   config.ForumName,
@@ -98,6 +107,7 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		HasComment:  u.Comment != "",
 		Topics:      make([]topicData, 0, len(topics)),
 		Posts:       make([]postData, 0, len(posts)),
+		Files:       make([]fileData, 0, len(files)),
 		Translation: GetDefaultTranslation(),
 	}
 
@@ -134,10 +144,23 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	for i := range files {
+		f := fileData{
+			ID:        files[i].ID,
+			Name:      files[i].Name,
+			User:      files[i].User,
+			Topic:     files[i].Topic,
+			Date:      files[i].Date.Format(time.RFC822),
+			CanDelete: false, // not used here
+			New:       false, // not used here
+		}
+		td.Files = append(td.Files, f)
+	}
+
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	err = profileTemplate.ExecuteTemplate(rw, "profile.html", td)
 	if err != nil {
-		log.Println("Error executing post template:", err)
+		log.Println("Error executing profile template:", err)
 	}
 }

@@ -68,6 +68,20 @@
   {{end}}
 
   <div>
+    <h2>{{.Translation.Files}}:</h2>
+  </div>
+
+  {{range $i, $e := .Files }}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
+    <p><a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a></p>
+    <p class="metadata"><a href="{{$.ServerPath}}/topic.html?id={{$e.Topic}}#files">{{$.Translation.Topic}}</a></p>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
+  </div>
+  {{end}}
+
+  <hr>
+
+  <div>
     <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
   </div>
 

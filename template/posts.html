@@ -65,6 +65,25 @@
 
   <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
 
+  {{if ne (len .Files) 0}}
+  <div>
+    <h2 id="files">{{$.Translation.Files}}</h2>
+  </div>
+  {{range $i, $e := .Files }}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
+    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+    <a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.User}}">{{$e.User}}</a></p>
+    {{if $e.CanDelete}}
+    <p><button onclick="document.getElementById('deleteLinkFile{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteFile}}</button></p>
+    <p id="deleteLinkFile{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteFile.html?id={{$e.ID}}&token={{$.Token}}">{{$.Translation.DeleteFile}}</a></p>
+    {{end}}
+  </div>
+  {{end}}
+  <hr>
+  {{end}}
+
   {{range $i, $e := .Posts }}
   <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.ID}}">
     {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
@@ -151,6 +170,17 @@
       <input type="hidden" name="token" value="{{.Token}}">
       <input type="submit" id="submitButton" value="{{.Translation.CreatePost}}" onclick="stopClosingWindow = false;">
     </form>
+
+    {{if .CanSaveFiles}}
+    <h2>{{.Translation.NewFile}}</h2>
+    <form id="newFile" action="{{.ServerPath}}/postFile.html" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="token" value="{{.Token}}">
+      <input type="hidden" name="topic" value="{{.TopicID}}">
+      <input type="file" id="file" name="file"><br>
+      <input type="submit">    
+    </form>
+    {{end}}
+
     <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
   </div>
   {{end}}

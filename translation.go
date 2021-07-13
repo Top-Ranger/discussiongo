@@ -116,6 +116,9 @@ type Translation struct {
 	Deleted                        string
 	LoginRequired                  string
 	ErrorOccured                   string
+	NewFile                        string
+	DeleteFile                     string
+	Files                          string
 }
 
 const defaultLanguage = "de"

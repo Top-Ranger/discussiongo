@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/files"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -48,8 +49,10 @@ type templatePostData struct {
 	CanClose      bool
 	Pinned        bool
 	HasNew        bool
+	CanSaveFiles  bool
 	CurrentUpdate int64
 	Posts         []postData
+	Files         []fileData
 	Token         string
 	Translation   Translation
 }
@@ -64,6 +67,16 @@ type postData struct {
 	Creator    string
 	New        bool
 	CanDelete  bool
+}
+
+type fileData struct {
+	ID        string
+	Name      string
+	User      string
+	Topic     string
+	Date      string
+	CanDelete bool
+	New       bool
 }
 
 var (
@@ -152,6 +165,13 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fs, err := files.GetFileMetadataOfTopic(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	td := templatePostData{
 		ServerPath:    config.ServerPath,
 		ServerPrefix:  config.ServerPrefix,
@@ -165,8 +185,10 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		CanClose:      (isAdmin || user == topic.Creator),
 		Pinned:        topic.Pinned,
 		HasNew:        false,
+		CanSaveFiles:  config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
 		CurrentUpdate: database.GetLastUpdateTopicPost(),
 		Posts:         make([]postData, 0, len(posts)),
+		Files:         make([]fileData, 0, len(fs)),
 		Translation:   GetDefaultTranslation(),
 	}
 
@@ -222,6 +244,24 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			}
 		}
 		td.Posts = append(td.Posts, p)
+	}
+
+	for i := range fs {
+		f := fileData{
+			ID:        fs[i].ID,
+			Name:      fs[i].Name,
+			User:      fs[i].User,
+			Date:      fs[i].Date.Format(time.RFC822),
+			CanDelete: (isAdmin || user == fs[i].User),
+			New:       false,
+		}
+		if loggedIn {
+			if lastUpdate.Before(fs[i].Date) {
+				f.New = true
+				td.HasNew = true
+			}
+		}
+		td.Files = append(td.Files, f)
 	}
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")

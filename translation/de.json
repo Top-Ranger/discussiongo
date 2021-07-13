@@ -87,5 +87,8 @@
     "InvalidRequest": "Anfrage falsch",
     "Deleted": "Gelöschte Objekte",
     "LoginRequired": "Login wird benötigt",
-    "ErrorOccured": "Ein Fehler ist aufgetreten. Bitte probieren Sie es später noch einmal."
+    "ErrorOccured": "Ein Fehler ist aufgetreten. Bitte probieren Sie es später noch einmal.",
+    "NewFile": "Neue Datei",
+    "DeleteFile": "Datei löschen",
+    "Files": "Dateien"
 }
