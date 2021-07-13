@@ -20,6 +20,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Top-Ranger/auth/data"
@@ -168,6 +169,10 @@ func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte(err.Error()))
 		return
 	}
+
+	f.Name = strings.ReplaceAll(f.Name, "\"", "_")
+	f.Name = strings.ReplaceAll(f.Name, ";", "_")
+	rw.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", f.Name))
 
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(f.Data)
