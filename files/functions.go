@@ -29,7 +29,7 @@ type File struct {
 	User  string
 	Topic string
 	Date  time.Time
-	Data  []byte
+	Data  []byte `xml:",cdata"`
 }
 
 // DeleteTopicFiles removes all files associated by a topic.
