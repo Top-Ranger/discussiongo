@@ -113,7 +113,7 @@
       <p>{{.Translation.OpenInvitations}}:</p>
       <ul>
       {{range $i, $e := .Invitations }}
-        <li>{{$.ServerPrefix}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteInvitation}}</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">{{$.Translation.DeleteInvitation}}</a></p></li>
+        <li>{{$.ServerPrefix}}{{$.ServerPath}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteInvitation}}</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">{{$.Translation.DeleteInvitation}}</a></p></li>
       {{end}}
       </ul>
     {{if .CreateInvitationMessage}}<p><i>{{.CreateInvitationMessage}}</i></p>{{end}}
