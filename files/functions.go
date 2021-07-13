@@ -34,7 +34,7 @@ type File struct {
 
 // DeleteTopicFiles removes all files associated by a topic.
 // It returns the number of deleted files.
-func DeleteTopicFiles(topicid int) (int64, error) {
+func DeleteTopicFiles(topicid string) (int64, error) {
 	r, err := db.Exec("DELETE FROM files WHERE topic=?", topicid)
 	if err != nil {
 		return 0, errors.New(fmt.Sprintln("Database error:", err))
