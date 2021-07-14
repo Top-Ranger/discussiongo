@@ -74,7 +74,7 @@
   {{range $i, $e := .Files }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
     <p><a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a></p>
-    <p class="metadata"><a href="{{$.ServerPath}}/topic.html?id={{$e.Topic}}#files">{{$.Translation.Topic}}</a></p>
+    <p class="metadata"><a href="{{$.ServerPath}}/topic.html?id={{$e.Topic}}#files" class="metadata">{{$.Translation.Topic}}</a></p>
     <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
   </div>
   {{end}}
