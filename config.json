@@ -17,6 +17,6 @@
     "LogFailedLogin": true,
     "EnableFileUpload": true,
     "EnableFileUploadAdmin": true,
-    "FileMaxMB": 100,
-    "FileUploadMessage": "Maximum size: 100MB"
+    "FileMaxMB": 10,
+    "FileUploadMessage": "Maximum size: 10MB"
 }
