@@ -90,5 +90,6 @@
     "ErrorOccured": "An error occured. Please try again later.",
     "NewFile": "New File",
     "DeleteFile": "Delete file",
-    "Files": "Files"
+    "Files": "Files",
+    "FileTooLarge": "File too large"
 }

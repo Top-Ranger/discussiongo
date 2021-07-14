@@ -102,8 +102,9 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if meta.Size > int64(config.FileMaxMB)*1000000 {
+		tl := GetDefaultTranslation()
 		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("File too large"))
+		rw.Write([]byte(tl.FileTooLarge))
 		return
 	}
 

@@ -119,6 +119,7 @@ type Translation struct {
 	NewFile                        string
 	DeleteFile                     string
 	Files                          string
+	FileTooLarge                   string
 }
 
 const defaultLanguage = "de"

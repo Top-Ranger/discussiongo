@@ -90,5 +90,6 @@
     "ErrorOccured": "Ein Fehler ist aufgetreten. Bitte probieren Sie es später noch einmal.",
     "NewFile": "Neue Datei",
     "DeleteFile": "Datei löschen",
-    "Files": "Dateien"
+    "Files": "Dateien",
+    "FileTooLarge": "Datei zu groß"
 }
