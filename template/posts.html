@@ -177,6 +177,7 @@
 
     {{if .CanSaveFiles}}
     <h2>{{.Translation.NewFile}}</h2>
+    <p>{{.FileUploadMessage}}</p>
     <form id="newFile" action="{{.ServerPath}}/postFile.html" method="POST" enctype="multipart/form-data">
       <input type="hidden" name="token" value="{{.Token}}">
       <input type="hidden" name="topic" value="{{.TopicID}}">

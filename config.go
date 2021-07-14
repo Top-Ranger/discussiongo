@@ -45,6 +45,7 @@ type configData struct {
 	EnableFileUpload        bool
 	EnableFileUploadAdmin   bool
 	FileMaxMB               int
+	FileUploadMessage       string
 }
 
 var config = configData{}

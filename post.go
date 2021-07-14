@@ -37,24 +37,25 @@ import (
 )
 
 type templatePostData struct {
-	ServerPath    string
-	ServerPrefix  string
-	ForumName     string
-	LoggedIn      bool
-	User          string
-	IsAdmin       bool
-	Topic         string
-	TopicID       string
-	Closed        bool
-	CanClose      bool
-	Pinned        bool
-	HasNew        bool
-	CanSaveFiles  bool
-	CurrentUpdate int64
-	Posts         []postData
-	Files         []fileData
-	Token         string
-	Translation   Translation
+	ServerPath        string
+	ServerPrefix      string
+	ForumName         string
+	LoggedIn          bool
+	User              string
+	IsAdmin           bool
+	Topic             string
+	TopicID           string
+	Closed            bool
+	CanClose          bool
+	Pinned            bool
+	HasNew            bool
+	CanSaveFiles      bool
+	CurrentUpdate     int64
+	Posts             []postData
+	Files             []fileData
+	Token             string
+	FileUploadMessage string
+	Translation       Translation
 }
 
 type postData struct {
@@ -173,23 +174,24 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	td := templatePostData{
-		ServerPath:    config.ServerPath,
-		ServerPrefix:  config.ServerPrefix,
-		ForumName:     config.ForumName,
-		LoggedIn:      loggedIn,
-		User:          user,
-		IsAdmin:       isAdmin,
-		Topic:         topic.Name,
-		TopicID:       id[0],
-		Closed:        topic.Closed,
-		CanClose:      (isAdmin || user == topic.Creator),
-		Pinned:        topic.Pinned,
-		HasNew:        false,
-		CanSaveFiles:  config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
-		CurrentUpdate: database.GetLastUpdateTopicPost(),
-		Posts:         make([]postData, 0, len(posts)),
-		Files:         make([]fileData, 0, len(fs)),
-		Translation:   GetDefaultTranslation(),
+		ServerPath:        config.ServerPath,
+		ServerPrefix:      config.ServerPrefix,
+		ForumName:         config.ForumName,
+		LoggedIn:          loggedIn,
+		User:              user,
+		IsAdmin:           isAdmin,
+		Topic:             topic.Name,
+		TopicID:           id[0],
+		Closed:            topic.Closed,
+		CanClose:          (isAdmin || user == topic.Creator),
+		Pinned:            topic.Pinned,
+		HasNew:            false,
+		CanSaveFiles:      config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
+		CurrentUpdate:     database.GetLastUpdateTopicPost(),
+		Posts:             make([]postData, 0, len(posts)),
+		Files:             make([]fileData, 0, len(fs)),
+		FileUploadMessage: config.FileUploadMessage,
+		Translation:       GetDefaultTranslation(),
 	}
 
 	var lastUpdate time.Time
