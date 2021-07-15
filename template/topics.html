@@ -93,7 +93,7 @@
       <form id="newTopic" action="{{.ServerPath}}/newTopic.html" method="POST">
         <input type="hidden" name="token" value="{{.Token}}">
         <h1>{{.Translation.NewTopic}}</h1>
-        <textarea id="textarea" name="topic" rows="1" form="newTopic" placeholder="Thema" maxlength="10000" required></textarea> <br>
+        <textarea id="textarea" name="topic" rows="1" form="newTopic" placeholder="{{.Translation.Topic}}" maxlength="10000" required></textarea> <br>
         <input type="submit" id="submitButton" value="{{.Translation.CreateTopic}}" onclick="stopClosingWindow = false;">
       </form>
       <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>

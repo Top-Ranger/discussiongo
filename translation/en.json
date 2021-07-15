@@ -92,10 +92,12 @@
     "DeleteFile": "Delete file",
     "Files": "Files",
     "FileTooLarge": "File too large",
+    "RenameTopic": "Rename topic",
     "Event": "Event",
     "UnknownEvent": "Unknown event",
     "EventCloseTopic": "Closing topic",
 	"EventOpenTopic": "Opening topic",
 	"EventPinTopic": "Pinning topic",
-	"EventUnpitTopic": "Unpinning topic"
+	"EventUnpitTopic": "Unpinning topic",
+    "EventTopicRenamed": "Renamed topic"
 }

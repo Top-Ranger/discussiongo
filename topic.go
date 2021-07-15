@@ -74,6 +74,7 @@ func init() {
 	http.HandleFunc("/deleteTopic.html", deleteTopicHandleFunc)
 	http.HandleFunc("/closeTopic.html", closeTopicHandleFunc)
 	http.HandleFunc("/pinTopic.html", pinTopicHandleFunc)
+	http.HandleFunc("/renameTopic.html", renameTopicHandleFunc)
 }
 
 func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -512,4 +513,102 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(rw, r, fmt.Sprintf("%s/#topic%s", config.ServerPath, id[0]), http.StatusFound)
+}
+
+func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	loggedIn, user := TestUser(r)
+
+	if !loggedIn {
+		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	isAdmin, err := database.IsAdmin(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	q := r.Form
+
+	token, ok := q["token"]
+	if !ok {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(token) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	if !valid {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	id, ok := q["id"]
+	if !ok {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(id) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	newtopic, ok := q["newtopic"]
+	if !ok {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(newtopic) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(strings.TrimSpace(newtopic[0])) == 0 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	topic, err := database.GetTopic(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	if !isAdmin && user != topic.Creator {
+		rw.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = database.RenameTopic(id[0], newtopic[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	_, err = events.SaveEvent(events.Event{
+		Type:  EventTopicRenamed,
+		User:  user,
+		Topic: id[0],
+		Date:  time.Now(),
+		Data:  eventCreateTopicRenameData(topic.Name, newtopic[0]),
+	})
+
+	err = database.ModifyLastSeen(user)
+	if err != nil {
+		log.Println("Can not modify last seen:", err)
+	}
+
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, id[0]), http.StatusFound)
 }

@@ -120,12 +120,14 @@ type Translation struct {
 	DeleteFile                     string
 	Files                          string
 	FileTooLarge                   string
+	RenameTopic                    string
 	Event                          string
 	UnknownEvent                   string
 	EventCloseTopic                string
 	EventOpenTopic                 string
 	EventPinTopic                  string
 	EventUnpitTopic                string
+	EventTopicRenamed              string
 }
 
 const defaultLanguage = "de"

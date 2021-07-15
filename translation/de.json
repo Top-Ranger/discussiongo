@@ -92,10 +92,12 @@
     "DeleteFile": "Datei löschen",
     "Files": "Dateien",
     "FileTooLarge": "Datei zu groß",
+    "RenameTopic": "Thema umbenennen",
     "Event": "Event",
     "UnknownEvent": "Unbekanntes Event",
     "EventCloseTopic": "Thema geschlossen",
 	"EventOpenTopic": "Thema geöffnet",
 	"EventPinTopic": "Thema angepinnt",
-	"EventUnpitTopic": "Thema nicht mehr angepinnt"
+	"EventUnpitTopic": "Thema nicht mehr angepinnt",
+    "EventTopicRenamed": "Thema umbenannt"
 }

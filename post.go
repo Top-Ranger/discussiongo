@@ -50,6 +50,7 @@ type templatePostData struct {
 	Closed            bool
 	CanClose          bool
 	Pinned            bool
+	CanRename         bool
 	HasNew            bool
 	CanSaveFiles      bool
 	CurrentUpdate     int64
@@ -200,6 +201,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Closed:            topic.Closed,
 		CanClose:          (isAdmin || user == topic.Creator),
 		Pinned:            topic.Pinned,
+		CanRename:         (isAdmin || user == topic.Creator),
 		HasNew:            false,
 		CanSaveFiles:      config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
 		CurrentUpdate:     database.GetLastUpdateTopicPost(),

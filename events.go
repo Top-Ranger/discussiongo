@@ -16,7 +16,9 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
+	"strings"
 	"time"
 
 	"github.com/Top-Ranger/discussiongo/events"
@@ -27,6 +29,7 @@ const (
 	EventOpenTopic
 	EventPinTopic
 	EventUnpinTopic
+	EventTopicRenamed
 )
 
 type eventData struct {
@@ -58,8 +61,23 @@ func eventToEventData(e events.Event) eventData {
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventPinTopic))
 	case EventUnpinTopic:
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventUnpitTopic))
+	case EventTopicRenamed:
+		if e.Data != nil {
+			split := strings.Split(string(e.Data), "﷐")
+			if len(split) == 2 {
+				ed.Description = template.HTML(fmt.Sprintf("%s (<i>%s</i> 🡆 <i>%s</i>)", tl.EventTopicRenamed, split[0], split[1]))
+			}
+		}
 	default:
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.UnknownEvent))
 	}
 	return ed
+}
+
+func eventCreateTopicRenameData(old, new string) []byte {
+	// ﷐
+	old = strings.ReplaceAll(old, "﷐", "")
+	new = strings.ReplaceAll(new, "﷐", "")
+	s := fmt.Sprintf("%s﷐%s", old, new)
+	return []byte(s)
 }

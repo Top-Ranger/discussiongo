@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -254,4 +254,29 @@ func DeleteTopic(ID string) error {
 	err = nil
 
 	return err
+}
+
+// RenameTopic renames a topic.
+// It does affect the modification time.
+func RenameTopic(ID string, newName string) error {
+	defer setLastUpdateTopicPost()
+	intID, err := strconv.ParseInt(ID, 10, 64)
+	if err != nil {
+		return errors.New(fmt.Sprintln("Can not convert ID:", err))
+	}
+
+	r, err := db.Exec("UPDATE topic SET name=?,lastmodified=? WHERE id=?", newName, time.Now().Unix(), intID)
+	if err != nil {
+		return errors.New(fmt.Sprintln("Database error:", err))
+	}
+
+	count, err := r.RowsAffected()
+	if err != nil {
+		return errors.New(fmt.Sprintln("Database count error:", err))
+	}
+
+	if count != 1 {
+		return errors.New(fmt.Sprintln("Update count is", count))
+	}
+	return nil
 }
