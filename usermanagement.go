@@ -464,13 +464,57 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	}
 
 	// Needed for deletion later
-	topics, err := database.GetTopicsByUser(user)
+	topics, err := database.GetTopicsByUser(name[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
+	posts, err := database.GetPostsByUser(name[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	userfiles, err := files.GetFilesForUser(name[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	// Add events
+	// Some might be anonymised or deleted later - that is ok
+	e := make([]events.Event, 0, len(posts)+len(userfiles))
+
+	for i := range posts {
+		e = append(e, events.Event{
+			Type:  EventPostDeleted,
+			User:  name[0],
+			Topic: posts[i].TopicID,
+			Date:  posts[i].Time,
+		})
+	}
+
+	for i := range userfiles {
+		e = append(e, events.Event{
+			Type:  EventFileDeleted,
+			User:  name[0],
+			Topic: userfiles[i].Topic,
+			Date:  userfiles[i].Date,
+		})
+	}
+
+	err = events.SaveEvents(e)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	// Now delete user
 	count, err := database.DeleteUser(name[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -487,7 +531,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 	count += c
 
-	c, err = files.DeleteUserFiles(user)
+	c, err = files.DeleteUserFiles(name[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -496,7 +540,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 	count += c
 
-	c, err = events.AnonymiseUserEvents(user)
+	c, err = events.AnonymiseUserEvents(name[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

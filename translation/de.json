@@ -99,5 +99,7 @@
 	"EventOpenTopic": "Thema geöffnet",
 	"EventPinTopic": "Thema angepinnt",
 	"EventUnpitTopic": "Thema nicht mehr angepinnt",
-    "EventTopicRenamed": "Thema umbenannt"
+    "EventTopicRenamed": "Thema umbenannt",
+    "EventPostDeleted": "Beitrag gelöscht",
+	"EventFileDeleted": "Datei gelöscht"
 }

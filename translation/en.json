@@ -99,5 +99,7 @@
 	"EventOpenTopic": "Opening topic",
 	"EventPinTopic": "Pinning topic",
 	"EventUnpitTopic": "Unpinning topic",
-    "EventTopicRenamed": "Renamed topic"
+    "EventTopicRenamed": "Renamed topic",
+    "EventPostDeleted": "Deleted post",
+	"EventFileDeleted": "Deleted file"
 }

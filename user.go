@@ -456,6 +456,50 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	posts, err := database.GetPostsByUser(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	userfiles, err := files.GetFilesForUser(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	// Add events
+	// Some might be anonymised or deleted later - that is ok
+	e := make([]events.Event, 0, len(posts)+len(userfiles))
+
+	for i := range posts {
+		e = append(e, events.Event{
+			Type:  EventPostDeleted,
+			User:  user,
+			Topic: posts[i].TopicID,
+			Date:  posts[i].Time,
+		})
+	}
+
+	for i := range userfiles {
+		e = append(e, events.Event{
+			Type:  EventFileDeleted,
+			User:  user,
+			Topic: userfiles[i].Topic,
+			Date:  userfiles[i].Date,
+		})
+	}
+
+	err = events.SaveEvents(e)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	// Now delete user
 	count, err := database.DeleteUser(user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)

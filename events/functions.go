@@ -80,11 +80,10 @@ func DeleteEvent(ID string) error {
 }
 
 // SaveEvent saves an event.
-// ID and time will be ignored.
+// ID will be ignored.
 // It returns the ID of the event.
 func SaveEvent(e Event) (string, error) {
-	date := time.Now().Unix()
-	r, err := db.Exec("INSERT INTO events (type, user, topic, date, data) VALUES (?, ?, ?, ?, ?)", e.Type, e.User, e.Topic, date, e.Data)
+	r, err := db.Exec("INSERT INTO events (type, user, topic, date, data) VALUES (?, ?, ?, ?, ?)", e.Type, e.User, e.Topic, e.Date.Unix(), e.Data)
 	if err != nil {
 		return "", errors.New(fmt.Sprintln("Database error:", err))
 	}
@@ -95,7 +94,37 @@ func SaveEvent(e Event) (string, error) {
 	}
 
 	return strconv.FormatInt(id, 10), nil
+}
 
+func SaveEvents(e []Event) error {
+	var successful bool
+
+	tx, err := db.Begin()
+	if err != nil {
+		return errors.New(fmt.Sprintln("Transaction error:", err))
+	}
+
+	defer func() {
+		if !successful {
+			tx.Rollback()
+		}
+	}()
+
+	for i := range e {
+		_, err := tx.Exec("INSERT INTO events (type, user, topic, date, data) VALUES (?, ?, ?, ?, ?)", e[i].Type, e[i].User, e[i].Topic, e[i].Date.Unix(), e[i].Data)
+		if err != nil {
+			return errors.New(fmt.Sprintln("Database error:", err))
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return errors.New(fmt.Sprintln("Commit error:", err))
+	}
+
+	successful = true
+
+	return nil
 }
 
 // GetEvent returns a file by ID.

@@ -128,6 +128,8 @@ type Translation struct {
 	EventPinTopic                  string
 	EventUnpitTopic                string
 	EventTopicRenamed              string
+	EventPostDeleted               string
+	EventFileDeleted               string
 }
 
 const defaultLanguage = "de"

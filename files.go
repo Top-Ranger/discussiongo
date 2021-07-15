@@ -25,6 +25,7 @@ import (
 
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
 )
 
@@ -238,6 +239,18 @@ func deleteFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	err = files.DeleteFile(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	_, err = events.SaveEvent(events.Event{
+		Type:  EventFileDeleted,
+		User:  user,
+		Topic: f.Topic,
+		Date:  f.Date,
+	})
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

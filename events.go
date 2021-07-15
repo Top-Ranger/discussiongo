@@ -30,6 +30,8 @@ const (
 	EventPinTopic
 	EventUnpinTopic
 	EventTopicRenamed
+	EventPostDeleted
+	EventFileDeleted
 )
 
 type eventData struct {
@@ -68,6 +70,10 @@ func eventToEventData(e events.Event) eventData {
 				ed.Description = template.HTML(fmt.Sprintf("%s (<i>%s</i> 🡆 <i>%s</i>)", tl.EventTopicRenamed, split[0], split[1]))
 			}
 		}
+	case EventPostDeleted:
+		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventPostDeleted))
+	case EventFileDeleted:
+		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventFileDeleted))
 	default:
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.UnknownEvent))
 	}

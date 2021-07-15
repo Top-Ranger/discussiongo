@@ -470,6 +470,13 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err = events.SaveEvent(events.Event{
+		Type:  EventPostDeleted,
+		User:  user,
+		Topic: post.TopicID,
+		Date:  post.Time,
+	})
+
 	err = database.ModifyLastSeen(user)
 	if err != nil {
 		log.Println("Can not modify last seen:", err)
