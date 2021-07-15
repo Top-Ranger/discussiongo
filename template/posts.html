@@ -95,6 +95,15 @@
   </div>
   {{end}}
 
+  {{if $e.Event}}
+  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}}>
+    {{if $e.Event.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+    <p class="metadata">{{$.Translation.Event}}: {{$e.Event.Description}}</p>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Event.Date}}</p>
+    <p class="metadata">{{$.Translation.User}}: {{if $e.Event.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Event.User}}">{{end}}{{$e.Event.User}}{{if $e.Event.RealUser}}</a>{{end}}</p>
+  </div>
+  {{end}}
+
   {{end}}
 
   <div id="bot"/>

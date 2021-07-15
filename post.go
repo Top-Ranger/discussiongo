@@ -28,6 +28,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
 
 	"github.com/yuin/goldmark"
@@ -59,9 +60,10 @@ type templatePostData struct {
 }
 
 type timelineData struct {
-	Time time.Time
-	Post *postData
-	File *fileData
+	Time  time.Time
+	Post  *postData
+	File  *fileData
+	Event *eventData
 }
 
 type postData struct {
@@ -179,6 +181,13 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	events, err := events.GetEventsOfTopic(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	td := templatePostData{
 		ServerPath:        config.ServerPath,
 		ServerPrefix:      config.ServerPrefix,
@@ -274,6 +283,20 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		td.Timeline = append(td.Timeline, timelineData{
 			Time: fs[i].Date,
 			File: &f,
+		})
+	}
+
+	for i := range events {
+		e := eventToEventData(events[i])
+		if loggedIn {
+			if lastUpdate.Before(events[i].Date) {
+				e.New = true
+				td.HasNew = true
+			}
+		}
+		td.Timeline = append(td.Timeline, timelineData{
+			Time:  events[i].Date,
+			Event: &e,
 		})
 	}
 

@@ -26,6 +26,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
 )
 
@@ -480,8 +481,25 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	count += c
 
+	c, err = events.AnonymiseUserEvents(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	count += c
+
 	for i := range topics {
 		c, err = files.DeleteTopicFiles(topics[i].ID)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			return
+		}
+		count += c
+
+		c, err = events.DeleteTopicEvents(topics[i].ID)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte(err.Error()))

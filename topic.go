@@ -26,6 +26,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
 )
 
@@ -291,6 +292,13 @@ func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err = events.DeleteTopicEvents(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	err = database.DeleteTopic(id[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -380,6 +388,24 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	event := events.Event{
+		Type:  EventOpenTopic,
+		User:  user,
+		Topic: id[0],
+		Date:  time.Now(),
+	}
+
+	if closed[0] == "1" {
+		event.Type = EventCloseTopic
+	}
+
+	_, err = events.SaveEvent(event)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	err = database.ModifyLastSeen(user)
 	if err != nil {
 		log.Println("Can not modify last seen:", err)
@@ -456,6 +482,24 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	err = database.TopicSetPinned(id[0], pin[0] == "1")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	event := events.Event{
+		Type:  EventUnpinTopic,
+		User:  user,
+		Topic: id[0],
+		Date:  time.Now(),
+	}
+
+	if pin[0] == "1" {
+		event.Type = EventPinTopic
+	}
+
+	_, err = events.SaveEvent(event)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

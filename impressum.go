@@ -30,6 +30,7 @@ import (
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
 )
 
@@ -53,6 +54,7 @@ type DSGVOExport struct {
 	Topics         []database.Topic
 	Posts          []database.Post
 	Files          []files.File
+	Events         []events.Event
 	InvitedUser    []DSGVOExportInvitedUsers
 	Invitations    []string
 	TopicsLastRead []accesstimes.AccessTimes
@@ -211,6 +213,13 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	dsgvo.Files, err = files.GetFilesForUser(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	dsgvo.Events, err = events.GetEventsOfUser(user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

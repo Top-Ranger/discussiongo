@@ -91,5 +91,11 @@
     "NewFile": "New File",
     "DeleteFile": "Delete file",
     "Files": "Files",
-    "FileTooLarge": "File too large"
+    "FileTooLarge": "File too large",
+    "Event": "Event",
+    "UnknownEvent": "Unknown event",
+    "EventCloseTopic": "Closing topic",
+	"EventOpenTopic": "Opening topic",
+	"EventPinTopic": "Pinning topic",
+	"EventUnpitTopic": "Unpinning topic"
 }
