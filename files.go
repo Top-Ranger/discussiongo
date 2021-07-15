@@ -123,7 +123,7 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Data:  b,
 	}
 
-	_, err = files.SaveFile(f)
+	fileID, err := files.SaveFile(f)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -135,7 +135,7 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s#files", config.ServerPath, topic), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s#file%s", config.ServerPath, topic, fileID), http.StatusFound)
 }
 
 func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
