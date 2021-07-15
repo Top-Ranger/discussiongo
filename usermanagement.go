@@ -290,7 +290,7 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 		rw.Write([]byte(err.Error()))
 		return
 	}
-	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %s\n%s/usermanagement.html#user%s", t.User, name[0], t.Password, newPW, config.ServerPrefix, name[0])))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %s\n%s%s/usermanagement.html#user%s", t.User, name[0], t.Password, newPW, config.ServerPrefix, config.ServerPath, name[0])))
 }
 
 func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
