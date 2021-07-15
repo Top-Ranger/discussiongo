@@ -18,7 +18,6 @@ package files
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -63,43 +62,36 @@ func connectToDB(path string) error {
 
 		_, err = tx.Exec("CREATE TABLE meta (key TEXT NOT NULL PRIMARY KEY, value TEXT)")
 		if err != nil {
-			fmt.Println(1)
 			return err
 		}
 
 		_, err = tx.Exec("INSERT INTO meta VALUES ('version', 1)")
 		if err != nil {
-			fmt.Println(2)
 			return err
 		}
 
 		_, err = tx.Exec("PRAGMA secure_delete=ON")
 		if err != nil {
-			fmt.Println(3)
 			return err
 		}
 
 		_, err = tx.Exec("CREATE TABLE files (id INTEGER PRIMARY KEY, name TEXT NOT NULL, user TEXT NOT NULL, topic TEXT NOT NULL, date INTEGER, data BLOB)")
 		if err != nil {
-			fmt.Println(4)
 			return err
 		}
 
 		_, err = tx.Exec("CREATE INDEX idx_files_user ON files (name)")
 		if err != nil {
-			fmt.Println(5)
 			return err
 		}
 
 		_, err = tx.Exec("CREATE INDEX idx_files_topic ON files (topic)")
 		if err != nil {
-			fmt.Println(6)
 			return err
 		}
 
 		err = tx.Commit()
 		if err != nil {
-			fmt.Println(7)
 			return err
 		}
 	} else {

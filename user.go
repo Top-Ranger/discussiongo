@@ -447,6 +447,14 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Needed for deletion later
+	topics, err := database.GetTopicsByUser(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	count, err := database.DeleteUser(user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -471,6 +479,16 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	count += c
+
+	for i := range topics {
+		c, err = files.DeleteTopicFiles(topics[i].ID)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(err.Error()))
+			return
+		}
+		count += c
+	}
 
 	RemoveCookies(rw)
 	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))
