@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -51,11 +52,16 @@ type templatePostData struct {
 	HasNew            bool
 	CanSaveFiles      bool
 	CurrentUpdate     int64
-	Posts             []postData
-	Files             []fileData
+	Timeline          []timelineData
 	Token             string
 	FileUploadMessage string
 	Translation       Translation
+}
+
+type timelineData struct {
+	Time time.Time
+	Post *postData
+	File *fileData
 }
 
 type postData struct {
@@ -188,8 +194,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		HasNew:            false,
 		CanSaveFiles:      config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
 		CurrentUpdate:     database.GetLastUpdateTopicPost(),
-		Posts:             make([]postData, 0, len(posts)),
-		Files:             make([]fileData, 0, len(fs)),
+		Timeline:          make([]timelineData, 0, len(posts)+len(fs)),
 		FileUploadMessage: config.FileUploadMessage,
 		Translation:       GetDefaultTranslation(),
 	}
@@ -245,7 +250,10 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 				td.HasNew = true
 			}
 		}
-		td.Posts = append(td.Posts, p)
+		td.Timeline = append(td.Timeline, timelineData{
+			Time: posts[i].Time,
+			Post: &p,
+		})
 	}
 
 	for i := range fs {
@@ -263,8 +271,13 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 				td.HasNew = true
 			}
 		}
-		td.Files = append(td.Files, f)
+		td.Timeline = append(td.Timeline, timelineData{
+			Time: fs[i].Date,
+			File: &f,
+		})
 	}
+
+	sort.Slice(td.Timeline, func(i, j int) bool { return td.Timeline[i].Time.Before(td.Timeline[j].Time) })
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 

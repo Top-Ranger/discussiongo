@@ -64,43 +64,37 @@
   </div>
 
   <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
+ 
+  {{range $i, $e := .Timeline }}
 
-  {{if ne (len .Files) 0}}
-  <div>
-    <h2 id="files">{{$.Translation.Files}}</h2>
-  </div>
-  {{range $i, $e := .Files }}
+  {{if $e.File}}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
-    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    <a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a>
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
-    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.User}}">{{$e.User}}</a></p>
-    {{if $e.CanDelete}}
-    <p><button onclick="document.getElementById('deleteLinkFile{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteFile}}</button></p>
-    <p id="deleteLinkFile{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deleteFile.html?id={{$e.ID}}&token={{$.Token}}">{{$.Translation.DeleteFile}}</a></p>
+    {{if $e.File.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+    <a href="{{$.ServerPath}}/getFile.html?id={{$e.File.ID}}" target="_blank">{{$e.File.Name}}</a>
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.File.Date}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.File.User}}">{{$e.File.User}}</a></p>
+    {{if $e.File.CanDelete}}
+    <p><button onclick="document.getElementById('deleteLinkFile{{$e.File.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteFile}}</button></p>
+    <p id="deleteLinkFile{{$e.File.ID}}" hidden><a href="{{$.ServerPath}}/deleteFile.html?id={{$e.File.ID}}&token={{$.Token}}">{{$.Translation.DeleteFile}}</a></p>
     {{end}}
   </div>
   {{end}}
-  <hr>
 
-  <div>
-    <h2 id="files">{{$.Translation.Posts}}</h2>
+  {{if $e.Post}}
+  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.Post.ID}}">
+    {{if $e.Post.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+    {{$e.Post.Content}}
+    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Post.Date}}</p>
+    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Post.Creator}}">{{$e.Post.Creator}}</a></p>
+    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}{{$.ServerPath}}/topic.html?id={{$.TopicID}}#post{{$e.Post.ID}}'); return false">{{$.Translation.CopyLink}}</a></p>
+    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.Post.RawContent}}); return false">{{$.Translation.CopyContent}}</a></p>
+    {{if $e.Post.CanDelete}}
+    <p><button onclick="document.getElementById('deleteLink{{$e.Post.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeletePost}}</button></p>
+    <p id="deleteLink{{$e.Post.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.Post.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeletePost}}</a></p>
+    {{end}}
   </div>
   {{end}}
 
-  {{range $i, $e := .Posts }}
-  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.ID}}">
-    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    {{$e.Content}}
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
-    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Creator}}">{{$e.Creator}}</a></p>
-    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}/topic.html?id={{$.TopicID}}#post{{$e.ID}}'); return false">{{$.Translation.CopyLink}}</a></p>
-    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.RawContent}}); return false">{{$.Translation.CopyContent}}</a></p>
-    {{if $e.CanDelete}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeletePost}}</button></p>
-    <p id="deleteLink{{$e.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeletePost}}</a></p>
-    {{end}}
-  </div>
   {{end}}
 
   <div id="bot"/>
