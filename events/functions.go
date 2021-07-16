@@ -16,6 +16,7 @@
 package events
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -173,14 +174,18 @@ func GetEvent(ID string) (Event, error) {
 
 	e := Event{}
 	if rows.Next() {
+		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
 		if err != nil {
 			return e, err
 		}
 		e.ID = strconv.FormatInt(intID, 10)
 		e.Date = time.Unix(intDate, 0)
+		if s.Valid {
+			e.AffectedUser = s.String
+		}
 	} else {
 		return e, errors.New("Can not read topic data")
 	}
@@ -199,14 +204,18 @@ func GetEventsOfTopic(topicid string) ([]Event, error) {
 
 	for rows.Next() {
 		e := Event{}
+		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
 		if err != nil {
 			return events, err
 		}
 		e.ID = strconv.FormatInt(intID, 10)
 		e.Date = time.Unix(intDate, 0)
+		if s.Valid {
+			e.AffectedUser = s.String
+		}
 		events = append(events, e)
 	}
 	return events, nil
@@ -224,14 +233,18 @@ func GetEventsOfUser(user string) ([]Event, error) {
 
 	for rows.Next() {
 		e := Event{}
+		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
 		if err != nil {
 			return events, err
 		}
 		e.ID = strconv.FormatInt(intID, 10)
 		e.Date = time.Unix(intDate, 0)
+		if s.Valid {
+			e.AffectedUser = s.String
+		}
 		events = append(events, e)
 	}
 	return events, nil
