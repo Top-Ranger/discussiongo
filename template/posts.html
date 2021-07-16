@@ -115,6 +115,10 @@
     <p class="metadata">{{$.Translation.Event}}: {{$e.Event.Description}}</p>
     <p class="metadata">{{$e.Event.Date}}</p>
     <p class="metadata">{{$.Translation.User}}: {{if $e.Event.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Event.User}}">{{end}}{{$e.Event.User}}{{if $e.Event.RealUser}}</a>{{end}}</p>
+    {{if $.IsAdmin}}
+    <p><button onclick="document.getElementById('deleteEventLink{{$e.Event.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteEvent}}</button></p>
+    <p id="deleteEventLink{{$e.Event.ID}}" hidden><a href="{{$.ServerPath}}/deleteEvent.html?id={{$e.Event.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeleteEvent}}</a></p>
+    {{end}}
   </div>
   {{end}}
 

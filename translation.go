@@ -122,6 +122,7 @@ type Translation struct {
 	FileTooLarge                   string
 	RenameTopic                    string
 	Event                          string
+	DeleteEvent                    string
 	UnknownEvent                   string
 	EventCloseTopic                string
 	EventOpenTopic                 string

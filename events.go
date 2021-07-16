@@ -18,11 +18,20 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
+	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
+	"github.com/Top-Ranger/auth/data"
+	"github.com/Top-Ranger/discussiongo/database"
 	"github.com/Top-Ranger/discussiongo/events"
 )
+
+func init() {
+	http.HandleFunc("/deleteEvent.html", deleteEventHandleFunc)
+}
 
 const (
 	EventCloseTopic = iota
@@ -42,6 +51,73 @@ type eventData struct {
 	Date        string
 	New         bool
 	RealUser    bool
+}
+
+func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
+	loggedIn, user := TestUser(r)
+
+	if !loggedIn {
+		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	isAdmin, err := database.IsAdmin(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	if !isAdmin {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	q := r.URL.Query()
+	id, ok := q["id"]
+	if !ok {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(id) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	tid := q["tid"]
+
+	token, ok := q["token"]
+	if !ok {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	if len(token) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	if !valid {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+
+	err = events.DeleteEvent(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	err = database.ModifyLastSeen(user)
+	if err != nil {
+		log.Println("Can not modify last seen:", err)
+	}
+
+	if len(tid) != 1 {
+		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
+		return
+	}
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, url.QueryEscape(tid[0])), http.StatusFound)
 }
 
 func eventToEventData(e events.Event) eventData {

@@ -94,6 +94,7 @@
     "FileTooLarge": "Datei zu groß",
     "RenameTopic": "Thema umbenennen",
     "Event": "Event",
+    "DeleteEvent": "Event löschen",
     "UnknownEvent": "Unbekanntes Event",
     "EventCloseTopic": "Thema geschlossen",
 	"EventOpenTopic": "Thema geöffnet",

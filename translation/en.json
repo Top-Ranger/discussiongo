@@ -94,6 +94,7 @@
     "FileTooLarge": "File too large",
     "RenameTopic": "Rename topic",
     "Event": "Event",
+    "DeleteEvent": "Delete event",
     "UnknownEvent": "Unknown event",
     "EventCloseTopic": "Closing topic",
 	"EventOpenTopic": "Opening topic",
