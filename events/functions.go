@@ -177,7 +177,7 @@ func GetEvent(ID string) (Event, error) {
 		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &s)
 		if err != nil {
 			return e, err
 		}
@@ -207,7 +207,7 @@ func GetEventsOfTopic(topicid string) ([]Event, error) {
 		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &s)
 		if err != nil {
 			return events, err
 		}
@@ -236,7 +236,7 @@ func GetEventsOfUser(user string) ([]Event, error) {
 		var s sql.NullString
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, s)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &s)
 		if err != nil {
 			return events, err
 		}
