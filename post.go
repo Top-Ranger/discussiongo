@@ -205,7 +205,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		HasNew:            false,
 		CanSaveFiles:      config.EnableFileUpload || (isAdmin && config.EnableFileUploadAdmin),
 		CurrentUpdate:     database.GetLastUpdateTopicPost(),
-		Timeline:          make([]timelineData, 0, len(posts)+len(fs)),
+		Timeline:          make([]timelineData, 0, len(posts)+len(fs)+len(events)),
 		FileUploadMessage: config.FileUploadMessage,
 		Translation:       GetDefaultTranslation(),
 	}
