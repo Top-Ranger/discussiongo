@@ -41,6 +41,7 @@ type usermanagementTemplateData struct {
 	ForumName   string
 	Username    string
 	User        []userManagementStruct
+	Events      []eventData
 	Token       string
 	Translation Translation
 }
@@ -101,6 +102,13 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventlist, err := events.GetEventsOfTopic(eventAdminPseudoTopic)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	token, err := data.GetStringsTimed(time.Now(), fmt.Sprintf("%s;Token", user))
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -113,6 +121,7 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		ForumName:   config.ForumName,
 		Username:    user,
 		User:        make([]userManagementStruct, 0, len(userlist)),
+		Events:      make([]eventData, 0, len(eventlist)),
 		Token:       token,
 		Translation: GetDefaultTranslation(),
 	}
@@ -126,6 +135,10 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			InvitationIndirect: !userlist[i].InvitationDirect,
 			LastSeen:           userlist[i].LastSeen.Format(time.RFC822),
 		})
+	}
+
+	for i := range eventlist {
+		td.Events = append(td.Events, eventToEventData(eventlist[i]))
 	}
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -215,6 +228,24 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte(err.Error()))
 		return
 	}
+
+	e := events.Event{
+		Type:         EventRemoveAdministrator,
+		User:         name[0],
+		AffectedUser: user,
+		Topic:        eventAdminPseudoTopic,
+		Date:         time.Now(),
+	}
+
+	if admin[0] == "1" {
+		e.Type = EventSetAdministrator
+	}
+
+	_, err = events.SaveEvent(e)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", e, err.Error())
+	}
+
 	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name[0]), http.StatusFound)
 }
 
@@ -404,6 +435,19 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 		return
 	}
 
+	e := events.Event{
+		Type:         EventUserRegisteredByAdmin,
+		User:         name[0],
+		AffectedUser: user,
+		Topic:        eventAdminPseudoTopic,
+		Date:         time.Now(),
+	}
+
+	_, err = events.SaveEvent(e)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", e, err.Error())
+	}
+
 	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name[0]), http.StatusFound)
 }
 
@@ -565,6 +609,19 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 			return
 		}
 		count += c
+	}
+
+	deletionEvent := events.Event{
+		Type:         EventUserAdminDeleted,
+		User:         name[0],
+		AffectedUser: user,
+		Topic:        eventAdminPseudoTopic,
+		Date:         time.Now(),
+	}
+
+	_, err = events.SaveEvent(deletionEvent)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", deletionEvent, err.Error())
 	}
 
 	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))

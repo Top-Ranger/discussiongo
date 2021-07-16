@@ -26,12 +26,13 @@ const AnoymousUser = "SYSTEM: DELETED USER"
 
 // Event represents a file.
 type Event struct {
-	ID    string
-	Type  int
-	User  string
-	Topic string
-	Date  time.Time
-	Data  []byte `xml:",cdata"`
+	ID           string
+	Type         int
+	User         string
+	Topic        string
+	Date         time.Time
+	Data         []byte `xml:",cdata"`
+	AffectedUser string
 }
 
 // DeleteTopicEvents removes all events associated by a topic.
@@ -61,6 +62,18 @@ func AnonymiseUserEvents(user string) (int64, error) {
 	if err != nil {
 		return 0, errors.New(fmt.Sprintln("Database count error:", err))
 	}
+
+	r, err = db.Exec("UPDATE events SET affecteduser=? WHERE affecteduser=?", AnoymousUser, user)
+	if err != nil {
+		return 0, errors.New(fmt.Sprintln("Database error:", err))
+	}
+
+	c, err := r.RowsAffected()
+	if err != nil {
+		return 0, errors.New(fmt.Sprintln("Database count error:", err))
+	}
+	count += c
+
 	return count, nil
 }
 
@@ -79,11 +92,26 @@ func DeleteEvent(ID string) error {
 	return nil
 }
 
+// DeleteTopicEventsBefore removes all events of a topic before a certain time.
+// It returns the number of deleted events.
+func DeleteTopicEventsBefore(topicid string, t time.Time) (int64, error) {
+	r, err := db.Exec("DELETE FROM events WHERE topic=? AND date < ?", topicid, t.Unix())
+	if err != nil {
+		return 0, errors.New(fmt.Sprintln("Database error:", err))
+	}
+
+	count, err := r.RowsAffected()
+	if err != nil {
+		return 0, errors.New(fmt.Sprintln("Database count error:", err))
+	}
+	return count, nil
+}
+
 // SaveEvent saves an event.
 // ID will be ignored.
 // It returns the ID of the event.
 func SaveEvent(e Event) (string, error) {
-	r, err := db.Exec("INSERT INTO events (type, user, topic, date, data) VALUES (?, ?, ?, ?, ?)", e.Type, e.User, e.Topic, e.Date.Unix(), e.Data)
+	r, err := db.Exec("INSERT INTO events (type, user, topic, date, data, affecteduser) VALUES (?, ?, ?, ?, ?, ?)", e.Type, e.User, e.Topic, e.Date.Unix(), e.Data, e.AffectedUser)
 	if err != nil {
 		return "", errors.New(fmt.Sprintln("Database error:", err))
 	}
@@ -96,6 +124,9 @@ func SaveEvent(e Event) (string, error) {
 	return strconv.FormatInt(id, 10), nil
 }
 
+// SaveEvent saves multiple events.
+// The method is optimised for insering multiple objects.
+// ID will be ignored.
 func SaveEvents(e []Event) error {
 	var successful bool
 
@@ -111,7 +142,7 @@ func SaveEvents(e []Event) error {
 	}()
 
 	for i := range e {
-		_, err := tx.Exec("INSERT INTO events (type, user, topic, date, data) VALUES (?, ?, ?, ?, ?)", e[i].Type, e[i].User, e[i].Topic, e[i].Date.Unix(), e[i].Data)
+		_, err := tx.Exec("INSERT INTO events (type, user, topic, date, data, affecteduser) VALUES (?, ?, ?, ?, ?, ?)", e[i].Type, e[i].User, e[i].Topic, e[i].Date.Unix(), e[i].Data, e[i].AffectedUser)
 		if err != nil {
 			return errors.New(fmt.Sprintln("Database error:", err))
 		}
@@ -144,7 +175,7 @@ func GetEvent(ID string) (Event, error) {
 	if rows.Next() {
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
 		if err != nil {
 			return e, err
 		}
@@ -170,7 +201,7 @@ func GetEventsOfTopic(topicid string) ([]Event, error) {
 		e := Event{}
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
 		if err != nil {
 			return events, err
 		}
@@ -185,7 +216,7 @@ func GetEventsOfTopic(topicid string) ([]Event, error) {
 func GetEventsOfUser(user string) ([]Event, error) {
 	events := make([]Event, 0)
 
-	rows, err := db.Query("SELECT * FROM events WHERE user=?", user)
+	rows, err := db.Query("SELECT * FROM events WHERE user=? OR affecteduser=?", user, user)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +226,7 @@ func GetEventsOfUser(user string) ([]Event, error) {
 		e := Event{}
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data)
+		err = rows.Scan(&intID, &e.Type, &e.User, &e.Topic, &intDate, &e.Data, &e.AffectedUser)
 		if err != nil {
 			return events, err
 		}

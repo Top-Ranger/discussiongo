@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,11 @@ func main() {
 		log.Printf("\nUpdated SYSTEM\n\tUsername: SYSTEM\n\tPasswort: %s\n", password)
 	}
 	err = database.SetAdmin("SYSTEM", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = startAdminDeleteLoop(config.AdminEventDuration)
 	if err != nil {
 		panic(err)
 	}

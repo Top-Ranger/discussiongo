@@ -47,6 +47,19 @@
   {{end}}
 
   <div>
+    <h1>{{.Translation.AdminEvents}}</h1>
+  </div>
+
+  {{range $i, $e := .Events }}
+  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
+    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+    <p class="metadata">{{$.Translation.Event}}: {{$e.Description}}</p>
+    <p class="metadata">{{$e.Date}}</p>
+    <p class="metadata">{{$.Translation.User}}: {{if $e.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.User}}">{{end}}{{$e.User}}{{if $e.RealUser}}</a>{{end}}</p>
+  </div>
+  {{end}}
+
+  <div>
     <h1>{{.Translation.RegisterUser}}:</h1>
       <form id="register" action="{{.ServerPath}}/adminRegisterUser.html" method="POST">
       <input type="hidden" name="token" value="{{.Token}}">

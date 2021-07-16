@@ -18,5 +18,6 @@
     "EnableFileUpload": true,
     "EnableFileUploadAdmin": true,
     "FileMaxMB": 10,
-    "FileUploadMessage": "Maximum size: 10MB"
+    "FileUploadMessage": "Maximum size: 10MB",
+    "AdminEventDuration": "168h"
 }

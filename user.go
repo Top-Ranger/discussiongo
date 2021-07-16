@@ -552,6 +552,18 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		count += c
 	}
 
+	deletionEvent := events.Event{
+		Type:  EventUserDeleted,
+		User:  user,
+		Topic: eventAdminPseudoTopic,
+		Date:  time.Now(),
+	}
+
+	_, err = events.SaveEvent(deletionEvent)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", deletionEvent, err.Error())
+	}
+
 	RemoveCookies(rw)
 	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))
 }

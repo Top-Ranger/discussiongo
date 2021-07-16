@@ -65,7 +65,7 @@ func connectToDB(path string) error {
 			return err
 		}
 
-		_, err = tx.Exec("INSERT INTO meta VALUES ('version', 1)")
+		_, err = tx.Exec("INSERT INTO meta VALUES ('version', 2)")
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ func connectToDB(path string) error {
 			return err
 		}
 
-		_, err = tx.Exec("CREATE TABLE events (id INTEGER PRIMARY KEY, type INTEGER NOT NULL, user TEXT NOT NULL, topic TEXT, date INTEGER NOT NULL, data BLOB)")
+		_, err = tx.Exec("CREATE TABLE events (id INTEGER PRIMARY KEY, type INTEGER NOT NULL, user TEXT NOT NULL, topic TEXT, date INTEGER NOT NULL, data BLOB, affecteduser TEXT)")
 		if err != nil {
 			return err
 		}
@@ -114,6 +114,32 @@ func connectToDB(path string) error {
 
 		// Upgrade
 		switch versionNr {
+		case 1:
+			log.Println("Upgrade database 1 -> 2")
+
+			tx, err := newDB.Begin()
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.Exec("ALTER TABLE events ADD COLUMN affecteduser TEXT")
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.Exec("UPDATE meta SET value=2 WHERE key='version'")
+			if err != nil {
+				return err
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				return err
+			}
+
+			log.Println("Upgrade done")
+			fallthrough
+
 		default:
 			log.Println("Database is on newest version")
 		}

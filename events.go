@@ -34,6 +34,8 @@ func init() {
 	http.HandleFunc("/deleteEvent.html", deleteEventHandleFunc)
 }
 
+const eventAdminPseudoTopic = "SYSTEM: admin events"
+
 const (
 	EventCloseTopic = iota
 	EventOpenTopic
@@ -42,16 +44,25 @@ const (
 	EventTopicRenamed
 	EventPostDeleted
 	EventFileDeleted
+	EventUserRegistered
+	EventUserInvited
+	EventUserDeleted
+	EventUserAdminDeleted
+	EventTopicDeleted
+	EventUserRegisteredByAdmin
+	EventSetAdministrator
+	EventRemoveAdministrator
 )
 
 type eventData struct {
-	ID          string
-	Description template.HTML
-	User        string
-	Topic       string
-	Date        string
-	New         bool
-	RealUser    bool
+	ID           string
+	Description  template.HTML
+	User         string
+	AffectedUser string
+	Topic        string
+	Date         string
+	New          bool
+	RealUser     bool
 }
 
 func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -102,6 +113,19 @@ func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	event, err := events.GetEvent(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	if event.Topic == eventAdminPseudoTopic {
+		rw.WriteHeader(http.StatusForbidden)
+		rw.Write([]byte("Admin event can not be deleted"))
+		return
+	}
+
 	err = events.DeleteEvent(id[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -125,11 +149,12 @@ func eventToEventData(e events.Event) eventData {
 	// No new is set
 	tl := GetDefaultTranslation()
 	ed := eventData{
-		ID:       e.ID,
-		User:     e.User,
-		Topic:    e.Topic,
-		Date:     e.Date.Format(time.RFC822),
-		RealUser: e.User != events.AnoymousUser,
+		ID:           e.ID,
+		User:         e.User,
+		AffectedUser: e.AffectedUser,
+		Topic:        e.Topic,
+		Date:         e.Date.Format(time.RFC822),
+		RealUser:     e.User != events.AnoymousUser,
 	}
 	switch e.Type {
 	case EventCloseTopic:
@@ -151,6 +176,22 @@ func eventToEventData(e events.Event) eventData {
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventPostDeleted))
 	case EventFileDeleted:
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventFileDeleted))
+	case EventUserRegistered:
+		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventUserRegistered))
+	case EventUserInvited:
+		ed.Description = template.HTML(fmt.Sprintf("%s <i>%s</i>", html.EscapeString(tl.EventUserInvited), html.EscapeString(e.AffectedUser)))
+	case EventUserDeleted:
+		ed.Description = template.HTML(template.HTMLEscapeString(tl.EventUserDeleted))
+	case EventUserAdminDeleted:
+		ed.Description = template.HTML(fmt.Sprintf("%s <i>%s</i>", html.EscapeString(tl.EventUserAdminDeleted), html.EscapeString(e.AffectedUser)))
+	case EventTopicDeleted:
+		ed.Description = template.HTML(fmt.Sprintf("%s (<i>%s</i>)", html.EscapeString(tl.EventTopicDeleted), html.EscapeString(string(e.Data))))
+	case EventUserRegisteredByAdmin:
+		ed.Description = template.HTML(fmt.Sprintf("%s <i>%s</i>", html.EscapeString(tl.EventUserRegisteredByAdmin), html.EscapeString(e.AffectedUser)))
+	case EventSetAdministrator:
+		ed.Description = template.HTML(fmt.Sprintf("%s <i>%s</i>", html.EscapeString(tl.EventSetAdministrator), html.EscapeString(e.AffectedUser)))
+	case EventRemoveAdministrator:
+		ed.Description = template.HTML(fmt.Sprintf("%s <i>%s</i>", html.EscapeString(tl.EventRemoveAdministrator), html.EscapeString(e.AffectedUser)))
 	default:
 		ed.Description = template.HTML(template.HTMLEscapeString(tl.UnknownEvent))
 	}
@@ -163,4 +204,37 @@ func eventCreateTopicRenameData(old, new string) []byte {
 	new = strings.ReplaceAll(new, "﷐", "")
 	s := fmt.Sprintf("%s﷐%s", old, new)
 	return []byte(s)
+}
+
+func startAdminDeleteLoop(duration string) error {
+	d, err := time.ParseDuration(duration)
+	if err != nil {
+		return fmt.Errorf("can not parse duration: %w", err)
+	}
+
+	if d <= 0 {
+		return fmt.Errorf("duration %s is not positive", d.String())
+	}
+
+	sleepDuration := d
+
+	if d > 24*time.Hour {
+		sleepDuration = 24 * time.Hour
+	}
+
+	go func(d, sleepDuration time.Duration) {
+		for {
+			t := time.Now().Add(-1 * d)
+
+			c, err := events.DeleteTopicEventsBefore(eventAdminPseudoTopic, t)
+			if err != nil {
+				log.Printf("Can not delete admin events before %s: %s", t.Format(time.RFC822), err.Error())
+			}
+			if c != 0 {
+				log.Printf("Deleted %d admin events before %s", c, t.Format(time.RFC822))
+			}
+			time.Sleep(sleepDuration)
+		}
+	}(d, sleepDuration)
+	return nil
 }

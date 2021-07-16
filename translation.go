@@ -124,6 +124,7 @@ type Translation struct {
 	Event                          string
 	DeleteEvent                    string
 	UnknownEvent                   string
+	AdminEvents                    string
 	EventCloseTopic                string
 	EventOpenTopic                 string
 	EventPinTopic                  string
@@ -131,6 +132,14 @@ type Translation struct {
 	EventTopicRenamed              string
 	EventPostDeleted               string
 	EventFileDeleted               string
+	EventUserRegistered            string
+	EventUserInvited               string
+	EventUserDeleted               string
+	EventUserAdminDeleted          string
+	EventTopicDeleted              string
+	EventUserRegisteredByAdmin     string
+	EventSetAdministrator          string
+	EventRemoveAdministrator       string
 }
 
 const defaultLanguage = "de"

@@ -46,6 +46,7 @@ type configData struct {
 	EnableFileUploadAdmin   bool
 	FileMaxMB               int
 	FileUploadMessage       string
+	AdminEventDuration      string
 }
 
 var config = configData{}

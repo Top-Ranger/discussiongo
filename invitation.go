@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
 )
 
 type templateInvitationData struct {
@@ -522,6 +523,19 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
+	}
+
+	e := events.Event{
+		Type:         EventUserInvited,
+		User:         name[0],
+		AffectedUser: invitedby,
+		Topic:        eventAdminPseudoTopic,
+		Date:         time.Now(),
+	}
+
+	_, err = events.SaveEvent(e)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", e, err.Error())
 	}
 
 	http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

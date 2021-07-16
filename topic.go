@@ -286,6 +286,13 @@ func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	topic, err := database.GetTopic(id[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	_, err = files.DeleteTopicFiles(id[0])
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -310,6 +317,19 @@ func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	err = database.ModifyLastSeen(user)
 	if err != nil {
 		log.Println("Can not modify last seen:", err)
+	}
+
+	deletionEvent := events.Event{
+		Type:  EventTopicDeleted,
+		User:  user,
+		Topic: eventAdminPseudoTopic,
+		Date:  time.Now(),
+		Data:  []byte(topic.Name),
+	}
+
+	_, err = events.SaveEvent(deletionEvent)
+	if err != nil {
+		log.Printf("Can not save event %+v: %s", deletionEvent, err.Error())
 	}
 
 	http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -597,13 +617,27 @@ func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = events.SaveEvent(events.Event{
+	e := events.Event{
 		Type:  EventTopicRenamed,
 		User:  user,
 		Topic: id[0],
 		Date:  time.Now(),
 		Data:  eventCreateTopicRenameData(topic.Name, newtopic[0]),
-	})
+	}
+	_, err = events.SaveEvent(e)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	e.Topic = eventAdminPseudoTopic
+	_, err = events.SaveEvent(e)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
 
 	err = database.ModifyLastSeen(user)
 	if err != nil {
