@@ -120,6 +120,7 @@ type Translation struct {
 	DeleteFile                     string
 	Files                          string
 	FileTooLarge                   string
+	Size                           string
 	RenameTopic                    string
 	Event                          string
 	DeleteEvent                    string

@@ -87,6 +87,7 @@ type fileData struct {
 	Date      string
 	CanDelete bool
 	New       bool
+	Size      string
 }
 
 var (
@@ -275,6 +276,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			Date:      fs[i].Date.Format(time.RFC822),
 			CanDelete: (isAdmin || user == fs[i].User),
 			New:       false,
+			Size:      fileLengthToString(int(fs[i].Length)),
 		}
 		if loggedIn {
 			if lastUpdate.Before(fs[i].Date) {
@@ -532,4 +534,18 @@ func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Write([]byte(formatPost(post[0])))
+}
+
+func fileLengthToString(length int) string {
+	size := float64(length)
+	size /= 1000
+	if size < 0.01 {
+		// Return small value for readability
+		return "0.01 KB"
+	}
+	if size > 1000 {
+		size /= 1000
+		return fmt.Sprintf("%.2f MB", size)
+	}
+	return fmt.Sprintf("%.2f KB", size)
 }

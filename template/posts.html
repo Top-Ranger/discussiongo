@@ -85,6 +85,7 @@
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="file{{$e.File.ID}}">
     {{if $e.File.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
     <a href="{{$.ServerPath}}/getFile.html?id={{$e.File.ID}}" target="_blank">{{$e.File.Name}}</a>
+    <p class="metadata">{{$.Translation.Size}}: {{$e.File.Size}}</p>
     <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.File.Date}}</p>
     <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.File.User}}">{{$e.File.User}}</a></p>
     {{if $e.File.CanDelete}}

@@ -92,6 +92,7 @@
     "DeleteFile": "Delete file",
     "Files": "Files",
     "FileTooLarge": "File too large",
+    "Size": "Size",
     "RenameTopic": "Rename topic",
     "Event": "Event",
     "DeleteEvent": "Delete event",

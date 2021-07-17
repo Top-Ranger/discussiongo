@@ -24,12 +24,13 @@ import (
 
 // File represents a file.
 type File struct {
-	ID    string
-	Name  string
-	User  string
-	Topic string
-	Date  time.Time
-	Data  []byte `xml:",cdata"`
+	ID     string
+	Name   string
+	User   string
+	Topic  string
+	Date   time.Time
+	Data   []byte `xml:",cdata"`
+	Length int64
 }
 
 // DeleteTopicFiles removes all files associated by a topic.
@@ -103,7 +104,7 @@ func GetFile(ID string) (File, error) {
 		return File{}, errors.New(fmt.Sprintln("Can not convert ID:", err))
 	}
 
-	rows, err := db.Query("SELECT * FROM files WHERE id=?", intID)
+	rows, err := db.Query("SELECT id,name,user,topic,date,data,length(data) FROM files WHERE id=?", intID)
 	if err != nil {
 		return File{}, err
 	}
@@ -113,7 +114,7 @@ func GetFile(ID string) (File, error) {
 	if rows.Next() {
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Data)
+		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Data, &f.Length)
 		if err != nil {
 			return f, err
 		}
@@ -133,7 +134,7 @@ func GetFileMetadata(ID string) (File, error) {
 		return File{}, errors.New(fmt.Sprintln("Can not convert ID:", err))
 	}
 
-	rows, err := db.Query("SELECT id,name,user,topic,date FROM files WHERE id=?", intID)
+	rows, err := db.Query("SELECT id,name,user,topic,date,length(data) FROM files WHERE id=?", intID)
 	if err != nil {
 		return File{}, err
 	}
@@ -143,7 +144,7 @@ func GetFileMetadata(ID string) (File, error) {
 	if rows.Next() {
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate)
+		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Length)
 		if err != nil {
 			return f, err
 		}
@@ -160,7 +161,7 @@ func GetFileMetadata(ID string) (File, error) {
 func GetFileMetadataOfTopic(topicid string) ([]File, error) {
 	files := make([]File, 0)
 
-	rows, err := db.Query("SELECT id,name,user,topic,date FROM files WHERE topic=?", topicid)
+	rows, err := db.Query("SELECT id,name,user,topic,date,length(data) FROM files WHERE topic=?", topicid)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +171,7 @@ func GetFileMetadataOfTopic(topicid string) ([]File, error) {
 		f := File{}
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate)
+		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Length)
 		if err != nil {
 			return files, err
 		}
@@ -185,7 +186,7 @@ func GetFileMetadataOfTopic(topicid string) ([]File, error) {
 func GetFilesForUser(user string) ([]File, error) {
 	files := make([]File, 0)
 
-	rows, err := db.Query("SELECT * FROM files WHERE user=?", user)
+	rows, err := db.Query("SELECT id,name,user,topic,date,data,length(data) FROM files WHERE user=?", user)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +196,7 @@ func GetFilesForUser(user string) ([]File, error) {
 		f := File{}
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Data)
+		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Data, &f.Length)
 		if err != nil {
 			return files, err
 		}
@@ -211,7 +212,7 @@ func GetFilesForUser(user string) ([]File, error) {
 func GetFileMetadataForUser(user string) ([]File, error) {
 	files := make([]File, 0)
 
-	rows, err := db.Query("SELECT id,name,user,topic,date FROM files WHERE user=?", user)
+	rows, err := db.Query("SELECT id,name,user,topic,date,length(data) FROM files WHERE user=?", user)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +222,7 @@ func GetFileMetadataForUser(user string) ([]File, error) {
 		f := File{}
 		var intDate int64
 		var intID int64
-		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate)
+		err = rows.Scan(&intID, &f.Name, &f.User, &f.Topic, &intDate, &f.Length)
 		if err != nil {
 			return files, err
 		}

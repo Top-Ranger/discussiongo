@@ -153,6 +153,7 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			Date:      files[i].Date.Format(time.RFC822),
 			CanDelete: false, // not used here
 			New:       false, // not used here
+			Size:      fileLengthToString(int(files[i].Length)),
 		}
 		td.Files = append(td.Files, f)
 	}
