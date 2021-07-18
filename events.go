@@ -169,7 +169,7 @@ func eventToEventData(e events.Event) eventData {
 		if e.Data != nil {
 			split := strings.Split(string(e.Data), "﷐")
 			if len(split) == 2 {
-				ed.Description = template.HTML(fmt.Sprintf("%s (<i>%s</i> 🡆 <u>%s</u>)", html.EscapeString(tl.EventTopicRenamed), html.EscapeString(split[0]), html.EscapeString(split[1])))
+				ed.Description = template.HTML(fmt.Sprintf("%s (%s 🡆 <i>%s</i>)", html.EscapeString(tl.EventTopicRenamed), html.EscapeString(split[0]), html.EscapeString(split[1])))
 			}
 		}
 	case EventPostDeleted:
