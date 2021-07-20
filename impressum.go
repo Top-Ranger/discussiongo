@@ -262,5 +262,6 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rw.Write([]byte(xml.Header))
 	rw.Write(b)
 }
