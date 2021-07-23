@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="{{.ServerPath}}/css/katex.min.css">
   <link rel="stylesheet" href="{{.ServerPath}}/css/vs.css">
   <link rel="stylesheet" href="{{.ServerPath}}/css/discussiongo.css">
-  <link rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/favicon.ico">
-  <link rel="icon" type="image/svg+xml" href="{{.ServerPath}}/static/Logo.svg" sizes="any">
+  <link id="favicon-ico" rel="icon" type="image/vnd.microsoft.icon" href="{{.ServerPath}}/static/{{if .HasNew}}faviconStar.ico{{else}}favicon.ico{{end}}">
+  <link id="favicon-svg" rel="icon" type="image/svg+xml" href="{{.ServerPath}}/static/{{if .HasNew}}Star.svg{{else}}Logo.svg{{end}}" sizes="any">
   <script src="{{.ServerPath}}/js/katex.min.js"></script>
   <script src="{{.ServerPath}}/js/auto-render.min.js"></script>
   <script src="{{.ServerPath}}/js/highlight.pack.js"></script>
@@ -239,6 +239,11 @@
             l = document.getElementsByClassName("showUpdateAvailable")
             for(var i = 0; i < l.length; ++i) {
               l[i].removeAttribute('hidden');
+            }
+            document.getElementById("favicon-ico").href = "{{.ServerPath}}/static/faviconStar.ico"
+            document.getElementById("favicon-svg").href = "{{.ServerPath}}/static/Star.svg"
+            if(document.title.charAt(0) != "*") {
+              document.title = "*" + document.title
             }
           }
         }
