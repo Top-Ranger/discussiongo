@@ -135,6 +135,8 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
+	database.SetLastUpdateTopicPost()
+
 	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s#file%s", config.ServerPath, topic, fileID), http.StatusFound)
 }
 

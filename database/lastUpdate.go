@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,10 @@ var (
 	lastUpdateTopicPostMutex       = sync.RWMutex{}
 )
 
-func setLastUpdateTopicPost() {
+// SetLastUpdateTopicPost updates the time of the last update of any post/topic.
+// It is internally called by the functions of the database package.
+// You only need to call it if you manually update a post (e.g. by adding data to the post which is stored in an other package).
+func SetLastUpdateTopicPost() {
 	lastUpdateTopicPostMutex.Lock()
 	defer lastUpdateTopicPostMutex.Unlock()
 	lastUpdateTopicPost = time.Now().UnixNano()

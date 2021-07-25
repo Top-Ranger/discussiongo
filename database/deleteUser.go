@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ func DeleteUser(user string) (int64, error) {
 		return 0, errors.New("User not found")
 	}
 
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 
 	userData, err := GetUser(user)
 	if err != nil {

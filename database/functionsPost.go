@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020 Marcus Soll
+// Copyright 2020,2021 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ func GetPostsByUser(user string) ([]Post, error) {
 
 // AddPost saves a post to the database.
 func AddPost(topicID, user, content string) (string, error) {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	topicIntID, err := strconv.ParseInt(topicID, 10, 64)
 	if err != nil {
 		return "", errors.New(fmt.Sprintln("Can not convert ID:", err))
@@ -143,7 +143,7 @@ func AddPost(topicID, user, content string) (string, error) {
 
 // DeletePost removes a post completely from the database. This action can not be undone.
 func DeletePost(topicID, ID string) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	topicIntID, err := strconv.ParseInt(topicID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))

@@ -118,7 +118,7 @@ func GetTopic(ID string) (Topic, error) {
 // AddTopic adds a new topic to the database.
 // The modification time is set to the current time.
 func AddTopic(name, creator string) (string, error) {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	date := time.Now().Unix()
 	r, err := db.Exec("INSERT INTO topic (name, creator, created, lastmodified) VALUES (?, ?, ?, ?)", name, creator, date, date)
 	if err != nil {
@@ -135,7 +135,7 @@ func AddTopic(name, creator string) (string, error) {
 
 // TopicModifyTime sets the modification time of a topic to the current time.
 func TopicModifyTime(ID string) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	intID, err := strconv.ParseInt(ID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))
@@ -160,7 +160,7 @@ func TopicModifyTime(ID string) error {
 // TopicSetClosed sets the 'closed' property of a topic to the given value.
 // It does not affect the modification time.
 func TopicSetClosed(ID string, closed bool) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	intID, err := strconv.ParseInt(ID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))
@@ -185,7 +185,7 @@ func TopicSetClosed(ID string, closed bool) error {
 // TopicSetPinned sets the 'pinned' property of a topic to the given value.
 // It does not affect the modification time.
 func TopicSetPinned(ID string, pinned bool) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	intID, err := strconv.ParseInt(ID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))
@@ -210,7 +210,7 @@ func TopicSetPinned(ID string, pinned bool) error {
 // DeleteTopic removes a topic and all associated posts from the database.
 // This action can not be undone.
 func DeleteTopic(ID string) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	intID, err := strconv.ParseInt(ID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))
@@ -259,7 +259,7 @@ func DeleteTopic(ID string) error {
 // RenameTopic renames a topic.
 // It does affect the modification time.
 func RenameTopic(ID string, newName string) error {
-	defer setLastUpdateTopicPost()
+	defer SetLastUpdateTopicPost()
 	intID, err := strconv.ParseInt(ID, 10, 64)
 	if err != nil {
 		return errors.New(fmt.Sprintln("Can not convert ID:", err))
