@@ -40,7 +40,7 @@
     "GoToPost": "Link zum Beitrag",
     "CaptchaString": "Captcha, dafür dies hier %s eingeben:",
     "ActivateNotifications": "Benachrichtigungen aktivieren",
-    "NotificationsActivated": "Benachrichtigungen sind aktiviert",
+    "NotificationsActivated": "Benachrichtigungen sind aktiviert. Solange sie auf dieser Themenübersicht einen Tab offen haben werden Sie bei Neuigkeiten informiert.",
     "JavaScriptWarning": "JavaScript ist ausgeschaltet - einige Funktionen werden nicht richtig funktionieren!",
     "UserSettings": "Benutzer (Einstellungen)",
     "UserManagement": "Benutzermanagement",

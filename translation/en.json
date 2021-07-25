@@ -40,7 +40,7 @@
     "GoToPost": "Go to post",
     "CaptchaString": "Please enter %s as a captcha:",
     "ActivateNotifications": "Enable notifications",
-    "NotificationsActivated": "Notifications are enabled",
+    "NotificationsActivated": "Notifications are enabled. You will get notifications of updates as long as this topic overview is opened in a browser tab.",
     "JavaScriptWarning": "JavaScript is disabled - some parts might not work as expected",
     "UserSettings": "User (settings)",
     "UserManagement": "User management",
