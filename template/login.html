@@ -42,6 +42,7 @@
     if(!document.hasFocus()) {
       var notification = new Notification("{{if .ForumName}}{{.ForumName}} - {{end}}DiscussionGo!\n{{.Translation.LoginRequired}}", {"icon": "{{.ServerPath}}/static/Logo.svg"});
     }
+    window.sessionStorage.removeItem("{{.ServerPath}} send notification");
   </script>
 
   {{else}}
