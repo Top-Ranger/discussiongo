@@ -118,6 +118,7 @@ type Translation struct {
 	ErrorOccured                   string
 	NewFile                        string
 	DeleteFile                     string
+	UploadFile                     string
 	Files                          string
 	FileTooLarge                   string
 	Size                           string
