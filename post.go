@@ -200,7 +200,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Topic:             topic.Name,
 		TopicID:           id[0],
 		Closed:            topic.Closed,
-		CanClose:          (isAdmin || user == topic.Creator),
+		CanClose:          ((loggedIn && config.EveryoneCanCloseAndOpenTopics) || isAdmin || user == topic.Creator),
 		Pinned:            topic.Pinned,
 		CanRename:         (isAdmin || user == topic.Creator),
 		HasNew:            false,

@@ -19,5 +19,6 @@
     "EnableFileUploadAdmin": true,
     "FileMaxMB": 10,
     "FileUploadMessage": "Maximum size: 10MB",
-    "AdminEventDuration": "168h"
+    "AdminEventDuration": "168h",
+    "EveryoneCanCloseAndOpenTopics": false
 }

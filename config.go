@@ -26,27 +26,28 @@ import (
 )
 
 type configData struct {
-	Language                string
-	CanRegister             bool
-	CanReadWithoutRegister  bool
-	Address                 string
-	InvitationAdmin         bool
-	InvitationUser          bool
-	ServerPrefix            string
-	ServerPath              string
-	CookieLanguage          string
-	CookieLogin             string
-	CookieAuth              string
-	CookieMinutes           int
-	LengthPassword          int
-	CreateInvitationMessage string
-	ForumName               string
-	LogFailedLogin          bool
-	EnableFileUpload        bool
-	EnableFileUploadAdmin   bool
-	FileMaxMB               int
-	FileUploadMessage       string
-	AdminEventDuration      string
+	Language                      string
+	CanRegister                   bool
+	CanReadWithoutRegister        bool
+	Address                       string
+	InvitationAdmin               bool
+	InvitationUser                bool
+	ServerPrefix                  string
+	ServerPath                    string
+	CookieLanguage                string
+	CookieLogin                   string
+	CookieAuth                    string
+	CookieMinutes                 int
+	LengthPassword                int
+	CreateInvitationMessage       string
+	ForumName                     string
+	LogFailedLogin                bool
+	EnableFileUpload              bool
+	EnableFileUploadAdmin         bool
+	FileMaxMB                     int
+	FileUploadMessage             string
+	AdminEventDuration            string
+	EveryoneCanCloseAndOpenTopics bool
 }
 
 var config = configData{}

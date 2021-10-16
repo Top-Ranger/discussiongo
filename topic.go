@@ -397,7 +397,7 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isAdmin && user != topic.Creator {
+	if !config.EveryoneCanCloseAndOpenTopics && !isAdmin && user != topic.Creator {
 		rw.WriteHeader(http.StatusForbidden)
 		return
 	}
