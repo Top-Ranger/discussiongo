@@ -282,6 +282,11 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	newToken, err := data.GetStringsTimed(time.Now(), inv[0])
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
 
 	token, ok := q["token"]
 	if !ok {

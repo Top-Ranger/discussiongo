@@ -479,6 +479,12 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Date:  post.Time,
 	})
 
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
 	err = database.ModifyLastSeen(user)
 	if err != nil {
 		log.Println("Can not modify last seen:", err)
