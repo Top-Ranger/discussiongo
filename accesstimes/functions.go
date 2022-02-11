@@ -118,11 +118,3 @@ func GetUserTimes(user string) ([]AccessTimes, error) {
 	}
 	return t, nil
 }
-
-// WaitWrite waits for an asynchronous write to finish.
-// It must be used if it is required that new values from SaveTime are returned in GetTimes / GetUserTimes.
-func WaitWrite() {
-	waitWrite.L.Lock()
-	defer waitWrite.L.Unlock()
-	waitWrite.Wait()
-}

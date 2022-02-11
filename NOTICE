@@ -11,8 +11,11 @@ But don't expect me to go out of my way implementing your requests.
 I'm releasing the software in the hope that it might be helpful to others.
 
 To run it, simply use the following commands:
-go build
+go build -tags="DATABASE"
 ./discussiongo
+
+(replace DATABASE with either sqlite or mysql, depending on which database you want to use)
+(you must specify exactly one type of database)
 
 The software will create a new user called 'SYSTEM'. You can use it for initial setup.
 All configuration can be found in 'config.json' and 'impressum.json'.

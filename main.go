@@ -22,12 +22,36 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
+	"github.com/Top-Ranger/discussiongo/events"
+	"github.com/Top-Ranger/discussiongo/files"
 )
 
 func main() {
 	// Set Translation
 	SetDefaultTranslation(config.Language)
+
+	// Init databases
+	err := database.InitDB(config.DatabaseConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	err = accesstimes.InitDB(config.DatabaseConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	err = files.InitDB(config.DatabaseConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	err = events.InitDB(config.DatabaseConfig)
+	if err != nil {
+		panic(err)
+	}
 
 	// Test SYSTEM
 	exists, err := database.UserExists("SYSTEM")

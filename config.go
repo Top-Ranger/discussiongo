@@ -48,6 +48,7 @@ type configData struct {
 	FileUploadMessage             string
 	AdminEventDuration            string
 	EveryoneCanCloseAndOpenTopics bool
+	DatabaseConfig                string
 }
 
 var config = configData{}

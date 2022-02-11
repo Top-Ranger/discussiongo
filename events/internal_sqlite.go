@@ -1,5 +1,7 @@
+//go:build sqlite
+
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 Marcus Soll
+// Copyright 2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package events is responsible for saving events.
 package events
 
 import (
@@ -24,15 +25,11 @@ import (
 	_ "github.com/mattn/go-sqlite3" // Database driver
 )
 
-var (
-	db *sql.DB
-)
-
-func init() {
-	err := connectToDB("./events.sqlite3")
-	if err != nil {
-		panic(err)
-	}
+// InitDB initialises the database.
+// Must be called before any other function.
+// SQLite will ignore all config.
+func InitDB(config string) error {
+	return connectToDB("./events.sqlite3")
 }
 
 // connectToDB returns a sql.DB object connected to the sqlite file given by path.
