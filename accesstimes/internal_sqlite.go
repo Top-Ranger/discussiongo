@@ -145,6 +145,7 @@ func worker() {
 				tx, err := db.Begin()
 				if err != nil {
 					log.Println("Can not begin transaction:", err)
+					continue
 				}
 				for i := range buffer {
 					if buffer[i] == nil {
