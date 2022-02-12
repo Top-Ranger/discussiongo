@@ -45,9 +45,11 @@
       {{end}}
   </div>
 
+  {{if .Topics}}
   <div>
     <h2>{{.Translation.Topics}}:</h2>
   </div>
+  {{end}}
 
   {{range $i, $e := .Topics }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
@@ -56,9 +58,11 @@
   </div>
   {{end}}
 
+  {{if .Posts}}
   <div>
     <h2>{{.Translation.Posts}}:</h2>
   </div>
+  {{end}}
 
   {{range $i, $e := .Posts }}
   <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.ID}}">
@@ -68,9 +72,11 @@
   </div>
   {{end}}
 
+  {{if .Files}}
   <div>
     <h2>{{.Translation.Files}}:</h2>
   </div>
+  {{end}}
 
   {{range $i, $e := .Files }}
   <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
