@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 Marcus Soll
+// Copyright 2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,34 +86,27 @@ func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	tid := q["tid"]
+	tid := q.Get("tid")
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	event, err := events.GetEvent(id[0])
+	event, err := events.GetEvent(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -126,7 +119,7 @@ func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = events.DeleteEvent(id[0])
+	err = events.DeleteEvent(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -138,11 +131,11 @@ func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	if len(tid) != 1 {
+	if tid == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, url.QueryEscape(tid[0])), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, url.QueryEscape(tid)), http.StatusFound)
 }
 
 func eventToEventData(e events.Event) eventData {

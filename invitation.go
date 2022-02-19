@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,26 +60,8 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	q := r.URL.Query()
-	inv, ok := q["inv"]
-	if !ok {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: false,
-			Error:        t.InvitationInvalid,
-			Invitation:   "",
-			InvitedBy:    "",
-			ForumName:    config.ForumName,
-			Token:        "INVALID",
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(inv) != 1 {
+	inv := q.Get("inv")
+	if inv == "" {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
@@ -98,7 +80,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok, err := database.TestInvitation(inv[0])
+	ok, err := database.TestInvitation(inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -110,7 +92,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		ShowError:    false,
 		ShowRegister: true,
 		Error:        "",
-		Invitation:   inv[0],
+		Invitation:   inv,
 		InvitedBy:    "",
 		ForumName:    config.ForumName,
 		Token:        "INVALID",
@@ -122,7 +104,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		td.ShowError = true
 	}
 
-	invitedby, err := database.GetInvitationCreator(inv[0])
+	invitedby, err := database.GetInvitationCreator(inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -130,7 +112,7 @@ func invitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 	td.InvitedBy = invitedby
 
-	token, err := data.GetStringsTimed(time.Now(), inv[0])
+	token, err := data.GetStringsTimed(time.Now(), inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -156,26 +138,8 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	q := r.Form
 
-	inv, ok := q["inv"]
-	if !ok {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: false,
-			Error:        t.InvitationInvalid,
-			Invitation:   "",
-			InvitedBy:    "",
-			ForumName:    config.ForumName,
-			Token:        "INVALID",
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(inv) != 1 {
+	inv := q.Get("inv")
+	if inv == "" {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
@@ -194,7 +158,7 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err := database.TestInvitation(inv[0])
+	valid, err := database.TestInvitation(inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -225,50 +189,14 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	datenschutzerklärung, ok := q["datenschutzerklärung"]
-	if !ok {
+	datenschutzerklärung := q.Get("datenschutzerklärung")
+	if datenschutzerklärung != "zugestimmt" {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: false,
 			Error:        t.RegistrationNeedsPrivacyPolicy,
-			Invitation:   inv[0],
-			InvitedBy:    "",
-			ForumName:    config.ForumName,
-			Token:        "INVALID",
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(datenschutzerklärung) != 1 {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: false,
-			Error:        t.RegistrationNeedsPrivacyPolicy,
-			Invitation:   inv[0],
-			InvitedBy:    "",
-			ForumName:    config.ForumName,
-			Token:        "INVALID",
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if datenschutzerklärung[0] != "zugestimmt" {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: false,
-			Error:        t.RegistrationNeedsPrivacyPolicy,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        "INVALID",
@@ -281,39 +209,21 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newToken, err := data.GetStringsTimed(time.Now(), inv[0])
+	newToken, err := data.GetStringsTimed(time.Now(), inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        t.TokenInvalid,
-			Invitation:   inv[0],
-			InvitedBy:    "",
-			ForumName:    config.ForumName,
-			Token:        newToken,
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(token) != 1 {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: true,
-			Error:        t.TokenInvalid,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -326,14 +236,14 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok = data.VerifyStringsTimed(token[0], inv[0], time.Now(), authentificationDuration)
+	ok := data.VerifyStringsTimed(token, inv, time.Now(), authentificationDuration)
 	if !ok {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        t.TokenInvalid,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    "",
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -346,57 +256,21 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	invitedby, err := database.GetInvitationCreator(inv[0])
+	invitedby, err := database.GetInvitationCreator(inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
+	name := q.Get("name")
+	if len(strings.TrimSpace(name)) == 0 {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        t.NameInvalid,
-			Invitation:   inv[0],
-			InvitedBy:    invitedby,
-			ForumName:    config.ForumName,
-			Token:        newToken,
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(name) != 1 {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: true,
-			Error:        t.NameInvalid,
-			Invitation:   inv[0],
-			InvitedBy:    invitedby,
-			ForumName:    config.ForumName,
-			Token:        newToken,
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(strings.TrimSpace(name[0])) == 0 {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: true,
-			Error:        t.NameInvalid,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -409,13 +283,13 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if protectedUserRegexp.Match([]byte(name[0])) {
+	if protectedUserRegexp.Match([]byte(name)) {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        t.NameInvalid,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -428,7 +302,7 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err = database.UserExists(name[0])
+	valid, err = database.UserExists(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -440,7 +314,7 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        t.UserExists,
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -453,50 +327,14 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pw, ok := q["pw"]
-	if !ok {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: true,
-			Error:        t.PasswordInvalid,
-			Invitation:   inv[0],
-			InvitedBy:    invitedby,
-			ForumName:    config.ForumName,
-			Token:        newToken,
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(pw) != 1 {
-		td := templateInvitationData{
-			ServerPath:   config.ServerPath,
-			ShowError:    true,
-			ShowRegister: true,
-			Error:        t.PasswordInvalid,
-			Invitation:   inv[0],
-			InvitedBy:    invitedby,
-			ForumName:    config.ForumName,
-			Token:        newToken,
-			Translation:  t,
-		}
-		err := invitationTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing invitation template:", err)
-		}
-		return
-	}
-	if len(pw[0]) < config.LengthPassword {
+	pw := q.Get("pw")
+	if len(pw) < config.LengthPassword {
 		td := templateInvitationData{
 			ServerPath:   config.ServerPath,
 			ShowError:    true,
 			ShowRegister: true,
 			Error:        fmt.Sprintf(t.PasswortTooShort, config.LengthPassword),
-			Invitation:   inv[0],
+			Invitation:   inv,
 			InvitedBy:    invitedby,
 			ForumName:    config.ForumName,
 			Token:        newToken,
@@ -509,21 +347,21 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.RemoveInvitation(inv[0])
+	err = database.RemoveInvitation(inv)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	err = database.AddUser(name[0], pw[0], false)
+	err = database.AddUser(name, pw, false)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	err = database.SetInvitedby(name[0], invitedby, true)
+	err = database.SetInvitedby(name, invitedby, true)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -532,7 +370,7 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	e := events.Event{
 		Type:         EventUserInvited,
-		User:         name[0],
+		User:         name,
 		AffectedUser: invitedby,
 		Topic:        eventAdminPseudoTopic,
 		Date:         time.Now(),

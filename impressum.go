@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -170,18 +170,14 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))

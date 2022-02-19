@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,38 +152,34 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, err := database.GetTopic(id[0])
+	topic, err := database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	posts, err := database.GetPosts(id[0])
+	posts, err := database.GetPosts(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	fs, err := files.GetFileMetadataOfTopic(id[0])
+	fs, err := files.GetFileMetadataOfTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	events, err := events.GetEventsOfTopic(id[0])
+	events, err := events.GetEventsOfTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -198,7 +194,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		User:              user,
 		IsAdmin:           isAdmin,
 		Topic:             topic.Name,
-		TopicID:           id[0],
+		TopicID:           id,
 		Closed:            topic.Closed,
 		CanClose:          ((loggedIn && config.EveryoneCanCloseAndOpenTopics) || isAdmin || user == topic.Creator),
 		Pinned:            topic.Pinned,
@@ -331,31 +327,19 @@ func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.Form
-	post, ok := q["post"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(post) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(strings.TrimSpace(post[0])) == 0 {
+	post := q.Get("post")
+	if len(strings.TrimSpace(post)) == 0 {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	id, ok := q["tid"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("tid")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, err := database.GetTopic(id[0])
+	topic, err := database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -367,22 +351,18 @@ func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	postID, err := database.AddPost(id[0], user, post[0])
+	postID, err := database.AddPost(id, user, post)
 	if err != nil {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
@@ -393,14 +373,14 @@ func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	err = database.TopicModifyTime(id[0])
+	err = database.TopicModifyTime(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s#post%s", config.ServerPath, id[0], postID), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s#post%s", config.ServerPath, id, postID), http.StatusFound)
 }
 
 func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -419,42 +399,30 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	tid, ok := q["tid"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(tid) != 1 {
+	tid := q.Get("tid")
+	if tid == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	post, err := database.GetSinglePost(id[0])
+	post, err := database.GetSinglePost(id)
 	if err != nil {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
@@ -465,7 +433,7 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.DeletePost(tid[0], id[0])
+	err = database.DeletePost(tid, id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -490,7 +458,7 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, tid[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, tid), http.StatusFound)
 }
 
 func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -511,35 +479,26 @@ func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	q := r.Form
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusForbidden)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	post, ok := q["post"]
-	if !ok {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if len(post) != 1 {
+	post := q.Get("post")
+	if post == "" {
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	rw.Write([]byte(formatPost(post[0])))
+	rw.Write([]byte(formatPost(post)))
 }
 
 func fileLengthToString(length int) string {

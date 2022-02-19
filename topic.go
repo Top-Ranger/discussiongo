@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -197,36 +197,24 @@ func newTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	q := r.Form
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, ok := q["topic"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(topic) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(strings.TrimSpace(topic[0])) == 0 {
+	topic := q.Get("topic")
+	if len(strings.TrimSpace(topic)) == 0 {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	id, err := database.AddTopic(topic[0], user)
+	id, err := database.AddTopic(topic, user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -261,53 +249,45 @@ func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, err := database.GetTopic(id[0])
+	topic, err := database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	_, err = files.DeleteTopicFiles(id[0])
+	_, err = files.DeleteTopicFiles(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	_, err = events.DeleteTopicEvents(id[0])
+	_, err = events.DeleteTopicEvents(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	err = database.DeleteTopic(id[0])
+	err = database.DeleteTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -351,46 +331,31 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	closed, ok := q["closed"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(closed) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if closed[0] != "0" && closed[0] != "1" {
+	closed := q.Get("closed")
+	if closed != "0" && closed != "1" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, err := database.GetTopic(id[0])
+	topic, err := database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -402,7 +367,7 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.TopicSetClosed(id[0], closed[0] == "1")
+	err = database.TopicSetClosed(id, closed == "1")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -412,11 +377,11 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	event := events.Event{
 		Type:  EventOpenTopic,
 		User:  user,
-		Topic: id[0],
+		Topic: id,
 		Date:  time.Now(),
 	}
 
-	if closed[0] == "1" {
+	if closed == "1" {
 		event.Type = EventCloseTopic
 	}
 
@@ -432,7 +397,7 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/#topic%s", config.ServerPath, id[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/#topic%s", config.ServerPath, id), http.StatusFound)
 }
 
 func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -455,54 +420,38 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	pin, ok := q["pin"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(pin) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if pin[0] != "0" && pin[0] != "1" {
+	pin := q.Get("pin")
+	if pin != "0" && pin != "1" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
 	// Test if topic exists
-	_, err = database.GetTopic(id[0])
+	_, err = database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	err = database.TopicSetPinned(id[0], pin[0] == "1")
+	err = database.TopicSetPinned(id, pin == "1")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -512,11 +461,11 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	event := events.Event{
 		Type:  EventUnpinTopic,
 		User:  user,
-		Topic: id[0],
+		Topic: id,
 		Date:  time.Now(),
 	}
 
-	if pin[0] == "1" {
+	if pin == "1" {
 		event.Type = EventPinTopic
 	}
 
@@ -532,7 +481,7 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/#topic%s", config.ServerPath, id[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/#topic%s", config.ServerPath, id), http.StatusFound)
 }
 
 func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -559,46 +508,30 @@ func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	q := r.Form
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	newtopic, ok := q["newtopic"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(newtopic) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(strings.TrimSpace(newtopic[0])) == 0 {
+	newtopic := q.Get("newtopic")
+	if len(strings.TrimSpace(newtopic)) == 0 {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	topic, err := database.GetTopic(id[0])
+	topic, err := database.GetTopic(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -610,7 +543,7 @@ func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.RenameTopic(id[0], newtopic[0])
+	err = database.RenameTopic(id, newtopic)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -620,9 +553,9 @@ func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	e := events.Event{
 		Type:  EventTopicRenamed,
 		User:  user,
-		Topic: id[0],
+		Topic: id,
 		Date:  time.Now(),
-		Data:  eventCreateTopicRenameData(topic.Name, newtopic[0]),
+		Data:  eventCreateTopicRenameData(topic.Name, newtopic),
 	}
 	_, err = events.SaveEvent(e)
 	if err != nil {
@@ -644,5 +577,5 @@ func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Can not modify last seen:", err)
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, id[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/topic.html?id=%s", config.ServerPath, id), http.StatusFound)
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -175,54 +175,35 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(name) != 1 {
+	name := q.Get("name")
+	if name == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
-	admin, ok := q["admin"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(admin) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if admin[0] != "0" && admin[0] != "1" {
+	admin := q.Get("admin")
+	if admin != "0" && admin != "1" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
-	err := database.SetAdmin(name[0], admin[0] == "1")
+	err := database.SetAdmin(name, admin == "1")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -231,13 +212,13 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	e := events.Event{
 		Type:         EventRemoveAdministrator,
-		User:         name[0],
+		User:         name,
 		AffectedUser: user,
 		Topic:        eventAdminPseudoTopic,
 		Date:         time.Now(),
 	}
 
-	if admin[0] == "1" {
+	if admin == "1" {
 		e.Type = EventSetAdministrator
 	}
 
@@ -246,7 +227,7 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Printf("Can not save event %+v: %s", e, err.Error())
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name), http.StatusFound)
 }
 
 func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -275,31 +256,22 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(name) != 1 {
+	name := q.Get("name")
+	if name == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
@@ -315,13 +287,13 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 
 	newPW := base64.StdEncoding.EncodeToString(b)
 
-	err = database.EditPassword(name[0], newPW)
+	err = database.EditPassword(name, newPW)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
-	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %s\n%s%s/usermanagement.html#user%s", t.User, name[0], t.Password, newPW, config.ServerPrefix, config.ServerPath, name[0])))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %s\n%s%s/usermanagement.html#user%s", t.User, name, t.Password, newPW, config.ServerPrefix, config.ServerPath, name)))
 }
 
 func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -357,48 +329,33 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 	}
 
 	q := r.PostForm
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(name) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(strings.TrimSpace(name[0])) == 0 {
+	name := q.Get("name")
+	if len(strings.TrimSpace(name)) == 0 {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
-	if protectedUserRegexp.Match([]byte(name[0])) {
+	if protectedUserRegexp.Match([]byte(name)) {
 		rw.WriteHeader(http.StatusForbidden)
 		rw.Write([]byte(t.NameInvalid))
 		return
 	}
 
-	verify, err := database.UserExists(name[0])
+	verify, err := database.UserExists(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -411,24 +368,14 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 		return
 	}
 
-	pw, ok := q["pw"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(pw) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(pw[0]) < config.LengthPassword {
+	pw := q.Get("pw")
+	if len(pw) < config.LengthPassword {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(fmt.Sprintf(t.PasswortTooShort, config.LengthPassword)))
 		return
 	}
 
-	err = database.AddUser(name[0], pw[0], false)
+	err = database.AddUser(name, pw, false)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -437,7 +384,7 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 
 	e := events.Event{
 		Type:         EventUserRegisteredByAdmin,
-		User:         name[0],
+		User:         name,
 		AffectedUser: user,
 		Topic:        eventAdminPseudoTopic,
 		Date:         time.Now(),
@@ -448,7 +395,7 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 		log.Printf("Can not save event %+v: %s", e, err.Error())
 	}
 
-	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name[0]), http.StatusFound)
+	http.Redirect(rw, r, fmt.Sprintf("%s/usermanagement.html#user%s", config.ServerPath, name), http.StatusFound)
 }
 
 func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -477,52 +424,43 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(name) != 1 {
+	name := q.Get("name")
+	if name == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
 	// Needed for deletion later
-	topics, err := database.GetTopicsByUser(name[0])
+	topics, err := database.GetTopicsByUser(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	posts, err := database.GetPostsByUser(name[0])
+	posts, err := database.GetPostsByUser(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	userfiles, err := files.GetFilesForUser(name[0])
+	userfiles, err := files.GetFilesForUser(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -536,7 +474,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	for i := range posts {
 		e = append(e, events.Event{
 			Type:  EventPostDeleted,
-			User:  name[0],
+			User:  name,
 			Topic: posts[i].TopicID,
 			Date:  posts[i].Time,
 		})
@@ -545,7 +483,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	for i := range userfiles {
 		e = append(e, events.Event{
 			Type:  EventFileDeleted,
-			User:  name[0],
+			User:  name,
 			Topic: userfiles[i].Topic,
 			Date:  userfiles[i].Date,
 		})
@@ -559,23 +497,14 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 	}
 
 	// Now delete user
-	count, err := database.DeleteUser(name[0])
+	count, err := database.DeleteUser(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
 	}
 
-	c, err := accesstimes.DeleteUser(name[0])
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(err.Error()))
-		return
-	}
-
-	count += c
-
-	c, err = files.DeleteUserFiles(name[0])
+	c, err := accesstimes.DeleteUser(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -584,7 +513,16 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 	count += c
 
-	c, err = events.AnonymiseUserEvents(name[0])
+	c, err = files.DeleteUserFiles(name)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	count += c
+
+	c, err = events.AnonymiseUserEvents(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -613,7 +551,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 	deletionEvent := events.Event{
 		Type:         EventUserAdminDeleted,
-		User:         name[0],
+		User:         name,
 		AffectedUser: user,
 		Topic:        eventAdminPseudoTopic,
 		Date:         time.Now(),
@@ -624,7 +562,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 		log.Printf("Can not save event %+v: %s", deletionEvent, err.Error())
 	}
 
-	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name, t.Deleted, count)))
 }
 
 func usermanagementAdminDeleteAllInvitationsHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -653,18 +591,13 @@ func usermanagementAdminDeleteAllInvitationsHandleFunc(rw http.ResponseWriter, r
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))

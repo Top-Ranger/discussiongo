@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 Marcus Soll
+// Copyright 2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -169,17 +169,13 @@ func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	f, err := files.GetFile(id[0])
+	f, err := files.GetFile(id)
 
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -211,32 +207,25 @@ func deleteFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	id, ok := q["id"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
-	if len(token) != 1 {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	f, err := files.GetFileMetadata(id[0])
+	f, err := files.GetFileMetadata(id)
 	if err != nil {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
@@ -247,7 +236,7 @@ func deleteFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = files.DeleteFile(id[0])
+	err = files.DeleteFile(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

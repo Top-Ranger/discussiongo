@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,37 +141,23 @@ func userChangeCommentHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.Form
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	comment, ok := q["comment"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.OldPasswordWrong))
-		return
-	}
-	if len(comment) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.OldPasswordWrong))
-		return
-	}
+	comment := q.Get("comment") // Empty comment is allowed
 
-	err = database.SetComment(user, comment[0])
+	err = database.SetComment(user, comment)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -203,18 +189,13 @@ func userAddInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.Form
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
@@ -253,37 +234,28 @@ func userDeleteInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	id, ok := q["id"]
-	if !ok {
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(id) != 1 {
+	id := q.Get("id")
+	if id == "" {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
 
-	test, err := database.TestInvitation(id[0])
+	test, err := database.TestInvitation(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -296,7 +268,7 @@ func userDeleteInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := database.GetInvitationCreator(id[0])
+	u, err := database.GetInvitationCreator(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -308,7 +280,7 @@ func userDeleteInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.RemoveInvitation(id[0])
+	err = database.RemoveInvitation(id)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -334,53 +306,34 @@ func userChangePasswordHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.Form
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	old, ok := q["old"]
-	if !ok {
+	old := q.Get("old")
+	if old == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
 	}
-	if len(old) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	new, ok := q["new"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(new) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(new[0]) < config.LengthPassword {
+
+	new := q.Get("new")
+	if len(new) < config.LengthPassword {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(fmt.Sprintf(t.PasswortTooShort, config.LengthPassword)))
 		return
 	}
 
-	ok, err = database.VerifyUser(user, old[0])
+	ok, err := database.VerifyUser(user, old)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -392,7 +345,7 @@ func userChangePasswordHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.EditPassword(user, new[0])
+	err = database.EditPassword(user, new)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -412,37 +365,22 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	token, ok := q["token"]
-	if !ok {
+	token := q.Get("token")
+	if token == "" {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
-	if len(token) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.TokenInvalid))
-		return
-	}
-	valid := data.VerifyStringsTimed(token[0], fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
+
+	valid := data.VerifyStringsTimed(token, fmt.Sprintf("%s;Token", user), time.Now(), authentificationDuration)
 	if !valid {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.TokenInvalid))
 		return
 	}
 
-	name, ok := q["user"]
-	if !ok {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-	if len(name) != 1 {
-		rw.WriteHeader(http.StatusUnauthorized)
-		rw.Write([]byte(t.InvalidRequest))
-		return
-	}
-
-	if name[0] != user {
+	name := q.Get("user")
+	if name != user {
 		rw.WriteHeader(http.StatusUnauthorized)
 		rw.Write([]byte(t.InvalidRequest))
 		return
@@ -565,7 +503,7 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	RemoveCookies(rw)
-	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name[0], t.Deleted, count)))
+	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name, t.Deleted, count)))
 }
 
 func userMarkReadHandleFunc(rw http.ResponseWriter, r *http.Request) {

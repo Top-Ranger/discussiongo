@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,42 +122,8 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	q := r.Form
 
-	datenschutzerklärung, ok := q["datenschutzerklärung"]
-	if !ok {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.RegistrationNeedsPrivacyPolicy,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(datenschutzerklärung) != 1 {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.RegistrationNeedsPrivacyPolicy,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if datenschutzerklärung[0] != "zugestimmt" {
+	datenschutzerklärung := q.Get("datenschutzerklärung")
+	if datenschutzerklärung != "zugestimmt" {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -175,25 +141,8 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	captchaID, ok := q["captchaID"]
-	if !ok {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.CaptchaInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(captchaID) != 1 {
+	captchaID := q.Get("captchaID")
+	if captchaID == "" {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -211,25 +160,8 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	captchaValue, ok := q["captcha"]
-	if !ok {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.CaptchaInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(captchaValue) != 1 {
+	captchaValue := q.Get("captcha")
+	if captchaValue == "" {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -247,7 +179,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid := captcha.VerifyStringsTimed(captchaID[0], captchaValue[0], time.Now(), time.Duration(config.CookieMinutes)*time.Minute)
+	valid := captcha.VerifyStringsTimed(captchaID, captchaValue, time.Now(), time.Duration(config.CookieMinutes)*time.Minute)
 	if !valid {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
@@ -266,42 +198,8 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name, ok := q["name"]
-	if !ok {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.NameInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(name) != 1 {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.NameInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(strings.TrimSpace(name[0])) == 0 {
+	name := q.Get("name")
+	if len(strings.TrimSpace(name)) == 0 {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -319,7 +217,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if protectedUserRegexp.Match([]byte(name[0])) {
+	if protectedUserRegexp.Match([]byte(name)) {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -337,7 +235,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err = database.UserExists(name[0])
+	valid, err = database.UserExists(name)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -361,42 +259,8 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pw, ok := q["pw"]
-	if !ok {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.PasswordInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(pw) != 1 {
-		td := templateRegisterData{
-			ServerPath:   config.ServerPath,
-			ForumName:    config.ForumName,
-			ShowError:    true,
-			ShowRegister: config.CanRegister,
-			Error:        t.PasswordInvalid,
-			Captcha:      c,
-			CaptchaID:    id,
-			Translation:  t,
-		}
-		err := registerTemplate.Execute(rw, td)
-		if err != nil {
-			log.Println("Error executing registration template:", err)
-		}
-		return
-	}
-	if len(pw[0]) < config.LengthPassword {
+	pw := q.Get("pw")
+	if len(pw) < config.LengthPassword {
 		td := templateRegisterData{
 			ServerPath:   config.ServerPath,
 			ForumName:    config.ForumName,
@@ -414,7 +278,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.AddUser(name[0], pw[0], false)
+	err = database.AddUser(name, pw, false)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
@@ -423,7 +287,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 	e := events.Event{
 		Type:  EventUserRegistered,
-		User:  name[0],
+		User:  name,
 		Topic: eventAdminPseudoTopic,
 		Date:  time.Now(),
 	}
@@ -433,7 +297,7 @@ func registerUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		log.Printf("Can not save event %+v: %s", e, err.Error())
 	}
 
-	log.Println("Registering user", name[0])
+	log.Println("Registering user", name)
 
 	http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
 }

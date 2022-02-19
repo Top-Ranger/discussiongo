@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,17 +61,13 @@ func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query()
-	quser, ok := q["user"]
-	if !ok {
-		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
-		return
-	}
-	if len(quser) != 1 {
+	quser := q.Get("user")
+	if quser == "" {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
 		return
 	}
 
-	u, err := database.GetUser(quser[0])
+	u, err := database.GetUser(quser)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
