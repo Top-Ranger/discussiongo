@@ -1,2 +1,3 @@
 discussiongo
 *.sqlite3
+.vscode/*
