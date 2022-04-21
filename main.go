@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021 Marcus Soll
+// Copyright 2020,2021,2022 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/Top-Ranger/discussiongo/accesstimes"
 	"github.com/Top-Ranger/discussiongo/database"
@@ -28,7 +29,34 @@ import (
 	"github.com/Top-Ranger/discussiongo/files"
 )
 
+func printInfo() {
+	log.Println("DiscussionGo!")
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.Print("- no build info found")
+		return
+	}
+
+	log.Printf("- go version: %s", bi.GoVersion)
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "-tags":
+			log.Printf("- build tags: %s", s.Value)
+		case "vcs.revision":
+			l := 7
+			if len(s.Value) > 7 {
+				s.Value = s.Value[:l]
+			}
+			log.Printf("- commit: %s", s.Value)
+		case "vcs.modified":
+			log.Printf("- files modified: %s", s.Value)
+		}
+	}
+}
+
 func main() {
+	printInfo()
+
 	// Set Translation
 	SetDefaultTranslation(config.Language)
 

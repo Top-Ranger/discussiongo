@@ -1,6 +1,6 @@
 module github.com/Top-Ranger/discussiongo
 
-go 1.16
+go 1.18
 
 require (
 	github.com/Top-Ranger/auth v1.0.0
@@ -8,7 +8,12 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/yuin/goldmark v1.4.11
-	golang.org/x/crypto v0.0.0-20220408190544-5352b0902921
-	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
-	golang.org/x/sys v0.0.0-20220406163625-3f8b81556e12 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+)
+
+require (
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/gorilla/css v1.0.0 // indirect
+	golang.org/x/net v0.0.0-20220420153159-1850ba15e1be // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 )
