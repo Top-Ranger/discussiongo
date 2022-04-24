@@ -76,6 +76,7 @@ func SetCookies(rw http.ResponseWriter, username string) error {
 	cookie.Path = cookiePath
 	cookie.SameSite = http.SameSiteLaxMode
 	cookie.HttpOnly = true
+	cookie.Secure = !config.InsecureAllowCookiesOverHTTP
 	http.SetCookie(rw, &cookie)
 
 	cookie = http.Cookie{}
@@ -85,6 +86,7 @@ func SetCookies(rw http.ResponseWriter, username string) error {
 	cookie.Path = cookiePath
 	cookie.SameSite = http.SameSiteLaxMode
 	cookie.HttpOnly = true
+	cookie.Secure = !config.InsecureAllowCookiesOverHTTP
 	http.SetCookie(rw, &cookie)
 
 	return nil
