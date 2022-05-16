@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -36,6 +37,9 @@ func InitDB(config string) error {
 		return fmt.Errorf("accesstimes: can not open '%s': %w", config, err)
 	}
 	db = newDb
+	db.SetConnMaxLifetime(time.Minute * 1)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	go worker()
 	return nil
