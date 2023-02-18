@@ -1,6 +1,6 @@
 module github.com/Top-Ranger/discussiongo
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Top-Ranger/auth v1.0.0
