@@ -55,208 +55,217 @@
     </div>
   </header>
 
-  <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
+  <div class="flex-container">
 
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
+    <div class="flex-item">
+      <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
+    </div>
 
-  <div>
-    <h2><a href="#bot">{{.Translation.NavigateToBottom}}</a></h2>
-  </div>
+    <div class="flex-item">
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
 
-  <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
+    <div class="flex-item">
+      <h2><a href="#bot">{{.Translation.NavigateToBottom}}</a></h2>
+    </div>
+
+    <div class="flex-item">
+      <h1>{{.Translation.Topic}}: {{.Topic}}{{if .Closed}} - <i>{{.Translation.Closed}}</i>{{else if .Pinned}} - <i>{{.Translation.Pinned}}</i>{{end}}</h1>
+    </div>
  
-  {{if .CanRename}}
-  <details>
-  <summary>{{.Translation.RenameTopic}}</summary>
-  <form id="renameTopic" action="{{.ServerPath}}/renameTopic.html" method="POST">
-    <input type="hidden" name="token" value="{{.Token}}">
-    <input type="hidden" name="id" value="{{.TopicID}}">
-    <h2>{{.Translation.RenameTopic}}</h2>
-    <textarea id="textareaRename" name="newtopic" rows="1" form="renameTopic" placeholder="{{.Translation.RenameTopic}}" maxlength="10000" required></textarea> <br>
-    <input type="submit" id="submitButton" value="{{.Translation.RenameTopic}}" onclick="stopClosingWindow = false;">
-  </form>
-  </details>
-  <p></p>
-  {{end}}
-
-  {{range $i, $e := .Timeline }}
-
-  {{if $e.File}}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="file{{$e.File.ID}}">
-    {{if $e.File.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    <a href="{{$.ServerPath}}/getFile.html?id={{$e.File.ID}}" target="_blank">{{$e.File.Name}}</a>
-    <p class="metadata">{{$.Translation.Size}}: {{$e.File.Size}}</p>
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.File.Date}}</p>
-    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.File.User}}">{{$e.File.User}}</a></p>
-    {{if $e.File.CanDelete}}
-    <p><button onclick="document.getElementById('deleteLinkFile{{$e.File.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteFile}}</button></p>
-    <p id="deleteLinkFile{{$e.File.ID}}" hidden><a href="{{$.ServerPath}}/deleteFile.html?id={{$e.File.ID}}&token={{$.Token}}">{{$.Translation.DeleteFile}}</a></p>
+    {{if .CanRename}}
+    <div class="flex-item">
+      <details>
+      <summary>{{.Translation.RenameTopic}}</summary>
+      <form id="renameTopic" action="{{.ServerPath}}/renameTopic.html" method="POST">
+        <input type="hidden" name="token" value="{{.Token}}">
+        <input type="hidden" name="id" value="{{.TopicID}}">
+        <h2>{{.Translation.RenameTopic}}</h2>
+        <p><textarea id="textareaRename" name="newtopic" rows="1" form="renameTopic" placeholder="{{.Translation.RenameTopic}}" maxlength="10000" required></textarea></p>
+        <input type="submit" id="submitButton" value="{{.Translation.RenameTopic}}" onclick="stopClosingWindow = false;">
+      </form>
+      </details>
+    </div>
     {{end}}
-  </div>
-  {{end}}
 
-  {{if $e.Post}}
-  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.Post.ID}}">
-    {{if $e.Post.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    {{$e.Post.Content}}
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Post.Date}}</p>
-    <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Post.Creator}}">{{$e.Post.Creator}}</a></p>
-    <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}{{$.ServerPath}}/topic.html?id={{$.TopicID}}#post{{$e.Post.ID}}'); return false">{{$.Translation.CopyLink}}</a></p>
-    <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.Post.RawContent}}); return false">{{$.Translation.CopyContent}}</a></p>
-    {{if $e.Post.CanDelete}}
-    <p><button onclick="document.getElementById('deleteLink{{$e.Post.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeletePost}}</button></p>
-    <p id="deleteLink{{$e.Post.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.Post.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeletePost}}</a></p>
+    {{range $i, $e := .Timeline }}
+
+    {{if $e.File}}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}} id="file{{$e.File.ID}}">
+      {{if $e.File.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+      <a href="{{$.ServerPath}}/getFile.html?id={{$e.File.ID}}" target="_blank">{{$e.File.Name}}</a>
+      <p class="metadata">{{$.Translation.Size}}: {{$e.File.Size}}</p>
+      <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.File.Date}}</p>
+      <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.File.User}}">{{$e.File.User}}</a></p>
+      {{if $e.File.CanDelete}}
+      <p><button onclick="document.getElementById('deleteLinkFile{{$e.File.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteFile}}</button></p>
+      <p id="deleteLinkFile{{$e.File.ID}}" hidden><a href="{{$.ServerPath}}/deleteFile.html?id={{$e.File.ID}}&token={{$.Token}}">{{$.Translation.DeleteFile}}</a></p>
+      {{end}}
+    </div>
     {{end}}
-  </div>
-  {{end}}
 
-  {{if $e.Event}}
-  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}}>
-    {{if $e.Event.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    <p class="metadata">{{$.Translation.Event}}: {{$e.Event.Description}}</p>
-    <p class="metadata">{{$e.Event.Date}}</p>
-    <p class="metadata">{{$.Translation.User}}: {{if $e.Event.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Event.User}}">{{end}}{{$e.Event.User}}{{if $e.Event.RealUser}}</a>{{end}}</p>
-    {{if $.IsAdmin}}
-    <p><button onclick="document.getElementById('deleteEventLink{{$e.Event.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteEvent}}</button></p>
-    <p id="deleteEventLink{{$e.Event.ID}}" hidden><a href="{{$.ServerPath}}/deleteEvent.html?id={{$e.Event.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeleteEvent}}</a></p>
+    {{if $e.Post}}
+    <div {{if even $i}}class="even post-element flex-item" {{else}}class="odd post-element flex-item"{{end}} id="post{{$e.Post.ID}}">
+      {{if $e.Post.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+      {{$e.Post.Content}}
+      <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Post.Date}}</p>
+      <p class="metadata">{{$.Translation.Creator}}: <a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Post.Creator}}">{{$e.Post.Creator}}</a></p>
+      <p class="metadata"><a class="metadata" href="#" onclick="copyPostToClipboard('{{$.ServerPrefix}}{{$.ServerPath}}/topic.html?id={{$.TopicID}}#post{{$e.Post.ID}}'); return false">{{$.Translation.CopyLink}}</a></p>
+      <p class="metadata"><a href="#" class="metadata" onclick="copyPostToClipboard({{$e.Post.RawContent}}); return false">{{$.Translation.CopyContent}}</a></p>
+      {{if $e.Post.CanDelete}}
+      <p><button onclick="document.getElementById('deleteLink{{$e.Post.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeletePost}}</button></p>
+      <p id="deleteLink{{$e.Post.ID}}" hidden><a href="{{$.ServerPath}}/deletePost.html?id={{$e.Post.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeletePost}}</a></p>
+      {{end}}
+    </div>
     {{end}}
-  </div>
-  {{end}}
 
-  {{end}}
-
-  <div id="bot"/>
-
-  {{if .CanClose}}
-  <div>
-    {{if .Closed}}
-    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.OpenTopic}}</button></p>
-    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=0&token={{.Token}}">{{.Translation.OpenTopic}}</a></p>
-    {{else}}
-    <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.CloseTopic}}</button></p>
-    <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=1&token={{.Token}}">{{.Translation.CloseTopic}}</a></p>
+    {{if $e.Event}}
+    <div {{if even $i}}class="even post-element flex-item" {{else}}class="odd post-element flex-item"{{end}}>
+      {{if $e.Event.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+      <p class="metadata">{{$.Translation.Event}}: {{$e.Event.Description}}</p>
+      <p class="metadata">{{$e.Event.Date}}</p>
+      <p class="metadata">{{$.Translation.User}}: {{if $e.Event.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.Event.User}}">{{end}}{{$e.Event.User}}{{if $e.Event.RealUser}}</a>{{end}}</p>
+      {{if $.IsAdmin}}
+      <p><button onclick="document.getElementById('deleteEventLink{{$e.Event.ID}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteEvent}}</button></p>
+      <p id="deleteEventLink{{$e.Event.ID}}" hidden><a href="{{$.ServerPath}}/deleteEvent.html?id={{$e.Event.ID}}&tid={{$.TopicID}}&token={{$.Token}}">{{$.Translation.DeleteEvent}}</a></p>
+      {{end}}
+    </div>
     {{end}}
-  </div>
-  {{end}}
 
-  {{if .IsAdmin}}
-  <div>
-    {{if .Pinned}}
-    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.UnpinTopic}}</button></p>
-    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=0&token={{.Token}}">{{.Translation.UnpinTopic}}</a></p>
-    {{else}}
-    <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.PinTopic}}</button></p>
-    <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=1&token={{.Token}}">{{.Translation.PinTopic}}</a></p>
     {{end}}
-  </div>
-  {{end}}
 
-  {{if .LoggedIn}}
-  {{if not .Closed}}
-  <script>
-    function showPreview() {
-      var ta = document.getElementById("textarea")
-      if(ta.value.length == 0) {
-        var preview = document.getElementById("preview")
-        preview.innerHTML = ""
-        return
+    <div id="bot" class="flex-item"/>
+
+    {{if .CanClose}}
+    <div>
+      {{if .Closed}}
+      <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.OpenTopic}}</button></p>
+      <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=0&token={{.Token}}">{{.Translation.OpenTopic}}</a></p>
+      {{else}}
+      <p><button onclick="document.getElementById('closeTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.CloseTopic}}</button></p>
+      <p id="closeTopic" hidden><a href="{{$.ServerPath}}/closeTopic.html?id={{.TopicID}}&closed=1&token={{.Token}}">{{.Translation.CloseTopic}}</a></p>
+      {{end}}
+    </div>
+    {{end}}
+
+    {{if .IsAdmin}}
+    <div>
+      {{if .Pinned}}
+      <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.UnpinTopic}}</button></p>
+      <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=0&token={{.Token}}">{{.Translation.UnpinTopic}}</a></p>
+      {{else}}
+      <p><button onclick="document.getElementById('pinTopic').removeAttribute('hidden'); this.disabled=true">{{.Translation.PinTopic}}</button></p>
+      <p id="pinTopic" hidden><a href="{{$.ServerPath}}/pinTopic.html?id={{.TopicID}}&pin=1&token={{.Token}}">{{.Translation.PinTopic}}</a></p>
+      {{end}}
+    </div>
+    {{end}}
+
+    {{if .LoggedIn}}
+    {{if not .Closed}}
+    <script>
+      function showPreview() {
+        var ta = document.getElementById("textarea")
+        if(ta.value.length == 0) {
+          var preview = document.getElementById("preview")
+          preview.innerHTML = ""
+          return
+        }
+        var form = new FormData();
+        form.append("post", ta.value);
+        form.append("token", "{{.Token}}")
+        var xhr = new XMLHttpRequest();
+        xhr.timeout = 10000;
+        xhr.open("POST", "{{$.ServerPath}}/getFormattedPost/", true);
+        xhr.onload = function() {
+          var preview = document.getElementById("preview")
+          preview.innerHTML = xhr.response;
+          renderMathInElement(preview);
+          preview.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+          });
+        }
+        xhr.ontimeout = function() {
+          document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
+        };
+        xhr.onerror = function() {
+          document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
+        };
+        xhr.send(form);
       }
-      var form = new FormData();
-      form.append("post", ta.value);
-      form.append("token", "{{.Token}}")
+    </script>
+
+    <div>
+      <h1>{{.Translation.User}}</h1>
+      <p>{{.Translation.Name}}: {{.User}}</p>
+      <h2>{{.Translation.NewPost}}</h2>
+      <div id="preview"></div>
+      <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>
+      <form id="newPost" action="{{.ServerPath}}/newPost.html?tid={{.TopicID}}" method="POST">
+        <p><textarea id="textarea" name="post" rows="5" form="newPost" placeholder="Beitrag" maxlength="10000" required></textarea></p>
+        <p><input type="hidden" name="token" value="{{.Token}}"></p>
+        <p><input type="submit" id="submitButton" value="{{.Translation.CreatePost}}" onclick="stopClosingWindow = false;"></p>
+      </form>
+
+      {{if .CanSaveFiles}}
+      <h2>{{.Translation.NewFile}}</h2>
+      <p>{{.FileUploadMessage}}</p>
+      <form id="newFile" action="{{.ServerPath}}/postFile.html" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="token" value="{{.Token}}">
+        <input type="hidden" name="topic" value="{{.TopicID}}">
+        <p><input type="file" id="file" name="file"></p>
+        <p><input type="submit" value="{{.Translation.UploadFile}}" onclick="stopClosingWindow = false;"></p>
+      </form>
+      {{end}}
+ 
+      <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
+    </div>
+    {{end}}
+    {{end}}
+
+    <div>
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+
+    <script>
+    function reloader() {
       var xhr = new XMLHttpRequest();
       xhr.timeout = 10000;
-      xhr.open("POST", "{{$.ServerPath}}/getFormattedPost/", true);
+      xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
+      xhr.responseType = "json";
       xhr.onload = function() {
-        var preview = document.getElementById("preview")
-        preview.innerHTML = xhr.response;
-        renderMathInElement(preview);
-        preview.querySelectorAll('pre code').forEach((block) => {
-          hljs.highlightElement(block);
-        });
-      }
-      xhr.ontimeout = function() {
-        document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
-      };
-      xhr.onerror = function() {
-        document.getElementById("preview").textContent = {{.Translation.ErrorOccured}};
-      };
-      xhr.send(form);
-    }
-  </script>
-
-  <div>
-    <h1>{{.Translation.User}}</h1>
-    <p>{{.Translation.Name}}: {{.User}}</p>
-    <h2>{{.Translation.NewPost}}</h2>
-    <div id="preview"></div>
-    <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>
-    <form id="newPost" action="{{.ServerPath}}/newPost.html?tid={{.TopicID}}" method="POST">
-      <textarea id="textarea" name="post" rows="5" form="newPost" placeholder="Beitrag" maxlength="10000" required></textarea> <br>
-      <input type="hidden" name="token" value="{{.Token}}">
-      <input type="submit" id="submitButton" value="{{.Translation.CreatePost}}" onclick="stopClosingWindow = false;">
-    </form>
-
-    {{if .CanSaveFiles}}
-    <h2>{{.Translation.NewFile}}</h2>
-    <p>{{.FileUploadMessage}}</p>
-    <form id="newFile" action="{{.ServerPath}}/postFile.html" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="token" value="{{.Token}}">
-      <input type="hidden" name="topic" value="{{.TopicID}}">
-      <input type="file" id="file" name="file"><br>
-      <input type="submit" value="{{.Translation.UploadFile}}" onclick="stopClosingWindow = false;">
-    </form>
-    {{end}}
-
-    <p class="showUpdateAvailable" hidden>{{.Translation.NewPostTopicReloadMessage}}</p>
-  </div>
-  {{end}}
-  {{end}}
-
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
-
-  <script>
-  function reloader() {
-    var xhr = new XMLHttpRequest();
-    xhr.timeout = 10000;
-    xhr.open("GET", "{{$.ServerPath}}/updateTopicPost.json", true);
-    xhr.responseType = "json";
-    xhr.onload = function() {
-        if (xhr.status !== 200) {
-            console.log("Error loading update stamp")
-            return
-        }
-        var ta = document.getElementById("textarea");
-        var tar = document.getElementById("textareaRename");
-        if(xhr.response.LastUpdate != {{.CurrentUpdate}}) {
-          if ((ta === null || ta.value == "") && (tar === null || tar.value == "")) {
-            location.reload();
-          } else {
-            l = document.getElementsByClassName("showUpdateAvailable")
-            for(var i = 0; i < l.length; ++i) {
-              l[i].removeAttribute('hidden');
-            }
-            document.getElementById("favicon-ico").href = "{{.ServerPath}}/static/faviconStar.ico"
-            document.getElementById("favicon-svg").href = "{{.ServerPath}}/static/Star.svg"
-            if(document.title.charAt(0) != "*") {
-              document.title = "*" + document.title
+          if (xhr.status !== 200) {
+              console.log("Error loading update stamp")
+              return
+          }
+          var ta = document.getElementById("textarea");
+          var tar = document.getElementById("textareaRename");
+          if(xhr.response.LastUpdate != {{.CurrentUpdate}}) {
+            if ((ta === null || ta.value == "") && (tar === null || tar.value == "")) {
+              location.reload();
+            } else {
+              l = document.getElementsByClassName("showUpdateAvailable")
+              for(var i = 0; i < l.length; ++i) {
+                l[i].removeAttribute('hidden');
+              }
+              document.getElementById("favicon-ico").href = "{{.ServerPath}}/static/faviconStar.ico"
+              document.getElementById("favicon-svg").href = "{{.ServerPath}}/static/Star.svg"
+              if(document.title.charAt(0) != "*") {
+                document.title = "*" + document.title
+              }
             }
           }
-        }
-    };
-    xhr.send();
-  }
-  setInterval(reloader, 60000);
+      };
+      xhr.send();
+    }
+    setInterval(reloader, 60000);
 
-  var elements = document.getElementsByClassName("post-element");
-  for(var i = 0; i < elements.length; i++) {
-    renderMathInElement(elements[i]);
-  }
-  </script>
+    var elements = document.getElementsByClassName("post-element");
+    for(var i = 0; i < elements.length; i++) {
+      renderMathInElement(elements[i]);
+    }
+    </script>
+
+  </div>
 
   <footer>
     <div>

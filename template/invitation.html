@@ -20,27 +20,31 @@
     </div>
   </header>
 
-  {{if .ShowError}}
-  <div>
-    <h1>{{.Error}}</h1>
+  <div class="flex-container">
+    
+    {{if .ShowError}}
+    <div class="odd flex-item">
+      <h1>{{.Error}}</h1>
+    </div>
+    {{end}}
+    {{if .ShowRegister}}
+    <div class="even flex-item">
+        <h1>{{.Translation.InvitationMessage}}</h1>
+        <p>{{.Translation.InvitedBy}} <i>{{.InvitedBy}}</i></p>
+          <form id="register" action="{{.ServerPath}}/registerInvitation.html" method="POST">
+          <p><label for="name">{{.Translation.Name}}:</label></p>
+          <p><input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required autofocus></p>
+          <p><label for="pw">{{.Translation.Password}}:</label></p>
+          <p><input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required></p>
+          <p><input type="checkbox" id="datenschutzerklärung" name="datenschutzerklärung" value="zugestimmt" required> <label for="datenschutzerklärung">{{.Translation.IAcceptPrivacyPolicy}}</label></p>
+          <input type="hidden" name="token" value="{{.Token}}">
+          <input type="hidden" name="inv" value="{{.Invitation}}">
+          <p><input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}"></p>
+        </form>
+    </div>
+    {{end}}
+
   </div>
-  {{end}}
-  {{if .ShowRegister}}
-  <div>
-      <h1>{{.Translation.InvitationMessage}}</h1>
-      <p>{{.Translation.InvitedBy}} <i>{{.InvitedBy}}</i></p>
-        <form id="register" action="{{.ServerPath}}/registerInvitation.html" method="POST">
-        <label for="name">{{.Translation.Name}}:</label> <br>
-        <input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required autofocus> <br>
-        <label for="pw">{{.Translation.Password}}:</label> <br>
-        <input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required> <br>
-        <p><input type="checkbox" name="datenschutzerklärung" value="zugestimmt" required> {{.Translation.IAcceptPrivacyPolicy}}</p>
-        <input type="hidden" name="token" value="{{.Token}}">
-        <input type="hidden" name="inv" value="{{.Invitation}}"> <br>
-        <input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}">
-      </form>
-  </div>
-  {{end}}
 
   <footer>
     <div>

@@ -20,66 +20,70 @@
     </div>
   </header>
 
-  <div>
-    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
+  <div class="flex-container">
 
-  <div>
-      <h1>{{.Translation.User}}</h1>
-      <p>{{.Translation.Name}}: {{.Username}}</p>
-  </div>
+    <div class="flex-item">
+      <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
 
-  <div>
-    <h1>{{.Translation.UserList}}</h1>
-  </div>
+    <div class="flex-item">
+        <h1>{{.Translation.User}}</h1>
+        <p>{{.Translation.Name}}: {{.Username}}</p>
+    </div>
 
-  {{range $i, $e := .User }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="user{{$e.Name}}">
-      <p>{{$e.Name}}</p>
-      {{if $e.Invited}}<p>{{$.Translation.InvitedBy}}: <i>{{$e.InvitedBy}}</i>{{if $e.InvitationIndirect}} ({{$.Translation.Indirect}}){{end}}</p>{{end}}
-      {{if $e.Admin}}<p><strong>{{$.Translation.UserIsAdministrator}}</strong></p>{{end}}
-      <p>{{$.Translation.LastActicity}}: <i>{{$e.LastSeen}}</i></p>
-      <p><a href="{{$.ServerPath}}/profile.html?user={{$e.Name}}">{{$.Translation.Profile}}</a></p>
-      {{if $e.Admin}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=0&token={{$.Token}}">{{$.Translation.RemoveAdministrator}}</a></p>{{else}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=1&token={{$.Token}}">{{$.Translation.SetAdministrator}}</a></p>{{end}}
-      <p><a href="{{$.ServerPath}}/adminResetPasswort.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.ResetPassword}}</a></p>
-      <p><button onclick="document.getElementById('deleteLink{{$e.Name}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteUser}}</button></p>
-      <p id="deleteLink{{$e.Name}}" hidden><a href="{{$.ServerPath}}/adminDeleteUser.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.DeleteUser}}</a></p>
-  </div>
-  {{end}}
+    <div class="flex-item">
+      <h1>{{.Translation.UserList}}</h1>
+    </div>
 
-  <div>
-    <h1>{{.Translation.AdminEvents}}</h1>
-  </div>
+    {{range $i, $e := .User }}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}} id="user{{$e.Name}}">
+        <p>{{$e.Name}}</p>
+        {{if $e.Invited}}<p>{{$.Translation.InvitedBy}}: <i>{{$e.InvitedBy}}</i>{{if $e.InvitationIndirect}} ({{$.Translation.Indirect}}){{end}}</p>{{end}}
+        {{if $e.Admin}}<p><strong>{{$.Translation.UserIsAdministrator}}</strong></p>{{end}}
+        <p>{{$.Translation.LastActicity}}: <i>{{$e.LastSeen}}</i></p>
+        <p><a href="{{$.ServerPath}}/profile.html?user={{$e.Name}}">{{$.Translation.Profile}}</a></p>
+        {{if $e.Admin}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=0&token={{$.Token}}">{{$.Translation.RemoveAdministrator}}</a></p>{{else}}<p><a href="{{$.ServerPath}}/setAdmin.html?name={{$e.Name}}&admin=1&token={{$.Token}}">{{$.Translation.SetAdministrator}}</a></p>{{end}}
+        <p><a href="{{$.ServerPath}}/adminResetPasswort.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.ResetPassword}}</a></p>
+        <p><button onclick="document.getElementById('deleteLink{{$e.Name}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteUser}}</button></p>
+        <p id="deleteLink{{$e.Name}}" hidden><a href="{{$.ServerPath}}/adminDeleteUser.html?name={{$e.Name}}&token={{$.Token}}">{{$.Translation.DeleteUser}}</a></p>
+    </div>
+    {{end}}
 
-  {{range $i, $e := .Events }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
-    {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
-    <p class="metadata">{{$.Translation.Event}}: {{$e.Description}}</p>
-    <p class="metadata">{{$e.Date}}</p>
-    <p class="metadata">{{$.Translation.User}}: {{if $e.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.User}}">{{end}}{{$e.User}}{{if $e.RealUser}}</a>{{end}}</p>
-  </div>
-  {{end}}
+    <div class="flex-item">
+      <h1>{{.Translation.AdminEvents}}</h1>
+    </div>
 
-  <div>
-    <h1>{{.Translation.RegisterUser}}:</h1>
-      <form id="register" action="{{.ServerPath}}/adminRegisterUser.html" method="POST">
-      <input type="hidden" name="token" value="{{.Token}}">
-      <label for="name">{{.Translation.Name}}:</label> <br>
-      <input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required> <br>
-      <label for="pw">{{.Translation.Password}}:</label> <br>
-      <input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required> <br>
-      <input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}">
-    </form>
-  </div>
+    {{range $i, $e := .Events }}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}}>
+      {{if $e.New}}<p><strong>({{$.Translation.New}})</strong></p>{{end}}
+      <p class="metadata">{{$.Translation.Event}}: {{$e.Description}}</p>
+      <p class="metadata">{{$e.Date}}</p>
+      <p class="metadata">{{$.Translation.User}}: {{if $e.RealUser}}<a class="metadata" href="{{$.ServerPath}}/profile.html?user={{$e.User}}">{{end}}{{$e.User}}{{if $e.RealUser}}</a>{{end}}</p>
+    </div>
+    {{end}}
 
-  <div id="inv">
-    <h1>{{.Translation.DeleteInvitation}}:</h1>
-    <p><button onclick="document.getElementById('deleteAllInv').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteAllInvitation}}</button></p>
-    <p id="deleteAllInv" hidden><a href="{{$.ServerPath}}/adminDeleteAllInvitations.html?token={{.Token}}">{{.Translation.DeleteAllInvitation}}</a></p>
-  </div>
+    <div class="flex-item">
+      <h1>{{.Translation.RegisterUser}}:</h1>
+        <form id="register" action="{{.ServerPath}}/adminRegisterUser.html" method="POST">
+        <p><input type="hidden" name="token" value="{{.Token}}"></p>
+        <p><label for="name">{{.Translation.Name}}:</label></p>
+        <p><input id="name" type="text" name="name" placeholder="{{.Translation.Name}}" required></p>
+        <p><label for="pw">{{.Translation.Password}}:</label></p>
+        <p><input id="pw" type="password" name="pw" placeholder="{{.Translation.Password}}" required></p>
+        <p><input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}"></p>
+      </form>
+    </div>
 
-  <div>
-    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    <div id="inv" class="flex-item">
+      <h1>{{.Translation.DeleteInvitation}}:</h1>
+      <p><button onclick="document.getElementById('deleteAllInv').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteAllInvitation}}</button></p>
+      <p id="deleteAllInv" hidden><a href="{{$.ServerPath}}/adminDeleteAllInvitations.html?token={{.Token}}">{{.Translation.DeleteAllInvitation}}</a></p>
+    </div>
+
+    <div class="flex-item">
+      <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+
   </div>
 
   <footer>

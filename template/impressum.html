@@ -20,17 +20,21 @@
     </div>
   </header>
 
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
+  <div class="flex-container">
 
-  <div>
-    {{.Text}}
-    <p><img style="max-width: min(500px, 80%);" src="{{.ServerPath}}/static/Logo.svg" alt="Logo"></p>
-  </div>
+    <div class="flex-item">
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
 
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    <div class="even flex-item">
+      {{.Text}}
+      <p><img style="max-width: min(500px, 80%);" src="{{.ServerPath}}/static/Logo.svg" alt="Logo"></p>
+    </div>
+
+    <div class="flex-item">
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+    
   </div>
   
   <footer>

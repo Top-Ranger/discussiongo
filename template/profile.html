@@ -26,83 +26,93 @@
     </div>
   </header>
 
-  <div>
-    <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
+  <div class="flex-container">
+    
+    <div class="flex-item">
+      <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
+    </div>
+
+    <div class="flex-item">
+      <h1>{{.Translation.Profile}}</h1>
+    </div>
+
+    <div class="flex-item">
+        <h2>{{.Translation.User}}</h2>
+        <p>{{.Translation.Name}}: {{.User}}</p>
+        {{if .HasComment}}
+        <h2 id="comment">{{.Translation.Comment}}</h2>
+        <div class="comment">
+          {{.Comment}}
+        </div>
+        {{end}}
+    </div>
+
+    <div class="flex-item">
+      <hr>
+    </div>
+
+    {{if .Topics}}
+    <div class="flex-item">
+      <h2>{{.Translation.Topics}}:</h2>
+    </div>
+    {{end}}
+
+    {{range $i, $e := .Topics }}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}} id="topic{{$e.ID}}">
+      <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> {{$.Translation.Closed}}</strong>{{else if $e.Pinned}}<strong> {{$.Translation.Pinned}}</strong>{{end}}</p>
+      <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
+    </div>
+    {{end}}
+
+    {{if .Posts}}
+    <div class="flex-item">
+      <h2>{{.Translation.Posts}}:</h2>
+    </div>
+    {{end}}
+
+    {{range $i, $e := .Posts }}
+    <div {{if even $i}}class="even post-element flex-item" {{else}}class="odd post-element flex-item"{{end}} id="post{{$e.ID}}">
+      <p><a href="{{$.ServerPath}}/topic.html?id={{$e.TID}}#post{{$e.ID}}">{{$.Translation.GoToPost}}</a></p>
+      {{$e.Content}}
+      <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
+    </div>
+    {{end}}
+
+    {{if .Files}}
+    <div class="flex-item">
+      <h2>{{.Translation.Files}}:</h2>
+    </div>
+    {{end}}
+
+    {{range $i, $e := .Files }}
+    <div {{if even $i}}class="even flex-item" {{else}}class="odd flex-item"{{end}}>
+      <p><a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a></p>
+      <p class="metadata">{{$.Translation.Size}}: {{$e.Size}}</p>
+      <p class="metadata"><a href="{{$.ServerPath}}/topic.html?id={{$e.Topic}}#files" class="metadata">{{$.Translation.Topic}}</a></p>
+      <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
+    </div>
+    {{end}}
+
+    <div class="flex-item">
+      <hr>
+    </div>
+
+    <div class="flex-item">
+      <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
+    </div>
+
+    <script>
+      var elements = document.getElementsByClassName("post-element");
+      for(var i = 0; i < elements.length; i++) {
+        renderMathInElement(elements[i]);
+      }
+      var elements = document.getElementsByClassName("comment");
+      for(var i = 0; i < elements.length; i++) {
+        renderMathInElement(elements[i]);
+      }
+    </script>
+
   </div>
-
-  <div>
-    <h1>{{.Translation.Profile}}</h1>
-  </div>
-
-  <div>
-      <h2>{{.Translation.User}}</h2>
-      <p>{{.Translation.Name}}: {{.User}}</p>
-      {{if .HasComment}}
-      <h2 id="comment">{{.Translation.Comment}}</h2>
-      <div class="comment">
-        {{.Comment}}
-      </div>
-      {{end}}
-  </div>
-
-  {{if .Topics}}
-  <div>
-    <h2>{{.Translation.Topics}}:</h2>
-  </div>
-  {{end}}
-
-  {{range $i, $e := .Topics }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}} id="topic{{$e.ID}}">
-    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.ID}}">{{$e.Name}}</a>{{if $e.Closed}}<strong> {{$.Translation.Closed}}</strong>{{else if $e.Pinned}}<strong> {{$.Translation.Pinned}}</strong>{{end}}</p>
-    <p class="metadata">{{$.Translation.LastChange}}: {{$e.Modified}}</p>
-  </div>
-  {{end}}
-
-  {{if .Posts}}
-  <div>
-    <h2>{{.Translation.Posts}}:</h2>
-  </div>
-  {{end}}
-
-  {{range $i, $e := .Posts }}
-  <div {{if even $i}}class="even post-element" {{else}}class="odd post-element"{{end}} id="post{{$e.ID}}">
-    <p><a href="{{$.ServerPath}}/topic.html?id={{$e.TID}}#post{{$e.ID}}">{{$.Translation.GoToPost}}</a></p>
-    {{$e.Content}}
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
-  </div>
-  {{end}}
-
-  {{if .Files}}
-  <div>
-    <h2>{{.Translation.Files}}:</h2>
-  </div>
-  {{end}}
-
-  {{range $i, $e := .Files }}
-  <div {{if even $i}}class="even" {{else}}class="odd"{{end}}>
-    <p><a href="{{$.ServerPath}}/getFile.html?id={{$e.ID}}" target="_blank">{{$e.Name}}</a></p>
-    <p class="metadata">{{$.Translation.Size}}: {{$e.Size}}</p>
-    <p class="metadata"><a href="{{$.ServerPath}}/topic.html?id={{$e.Topic}}#files" class="metadata">{{$.Translation.Topic}}</a></p>
-    <p class="metadata">{{$.Translation.CreatedAt}}: {{$e.Date}}</p>
-  </div>
-  {{end}}
-
-  <hr>
-
-  <div>
-    <h1><a href="#" onclick="window.history.back();return false;">{{.Translation.Back}}</a></h1>
-  </div>
-
-  <script>
-    var elements = document.getElementsByClassName("post-element");
-    for(var i = 0; i < elements.length; i++) {
-      renderMathInElement(elements[i]);
-    }
-    var elements = document.getElementsByClassName("comment");
-    for(var i = 0; i < elements.length; i++) {
-      renderMathInElement(elements[i]);
-    }
-  </script>
 
   <footer>
     <div>

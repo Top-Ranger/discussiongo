@@ -39,11 +39,13 @@
     });
   </script>
 
-  <div>
-    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
+  <div class="flex-container">
 
-  <div>
+    <div class="flex-item">
+      <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+
+    <div class="even flex-item">
       <h1>{{.Translation.User}}</h1>
       <p>{{.Translation.Name}}: {{.User}}</p>
       {{if .IsAdmin}}<p><strong>{{.Translation.UserIsAdministrator}}</strong></p>{{end}}
@@ -89,63 +91,68 @@
         {{.Comment}}
       </div>
       {{end}}
-      <div id="preview"></div>
-      <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>  
-      <form id="changeComment" action="{{.ServerPath}}/comment.html" method="POST">
-        <input type="hidden" name="token" value="{{.Token}}">
-        <textarea id="textarea" name="comment" rows="5" form="changeComment" placeholder="{{.Translation.Comment}}" maxlength="10000" onchange="contentChanged = true;">{{.CommentUnescaped}}</textarea> <br>
-        <input type="submit" id="commentSubmitButton" value="{{.Translation.ChangeComment}}" onclick="stopClosingWindow = false;">
-      </form>
 
-      <form id="changePassword" action="{{.ServerPath}}/password.html" method="POST">
-        <input type="hidden" name="token" value="{{.Token}}">
-        <h1>{{.Translation.ChangePassword}}</h1>
-        <label for="old">{{.Translation.OldPassword}}:</label> <br>
-        <input id="old" type="password" name="old" placeholder="{{.Translation.OldPassword}}" required> <br>
-        <label for="new">{{.Translation.NewPassword}}:</label> <br>
-        <input id="new" type="password" name="new" placeholder="{{.Translation.NewPassword}}" required> <br>
-        <input type="submit" id="submitButton" value="{{.Translation.ChangePassword}}">
-      </form>
-  </div>
+      <div id="preview" class="flex-item"></div>
+        <p><button onclick="showPreview();">{{.Translation.Preview}}</button></p>  
+        <form id="changeComment" action="{{.ServerPath}}/comment.html" method="POST">
+          <input type="hidden" name="token" value="{{.Token}}">
+          <p><textarea id="textarea" name="comment" rows="5" form="changeComment" placeholder="{{.Translation.Comment}}" maxlength="10000" onchange="contentChanged = true;">{{.CommentUnescaped}}</textarea></p>
+          <p><input type="submit" id="commentSubmitButton" value="{{.Translation.ChangeComment}}" onclick="stopClosingWindow = false;"></p>
+        </form>
 
-  {{if .CanInvite}}
-  <div id="inv">
-      <h1>{{.Translation.Invitations}}</h1>
-      <p>{{.Translation.OpenInvitations}}:</p>
-      <ul>
-      {{range $i, $e := .Invitations }}
-        <li>{{$.ServerPrefix}}{{$.ServerPath}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteInvitation}}</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">{{$.Translation.DeleteInvitation}}</a></p></li>
+        <form id="changePassword" action="{{.ServerPath}}/password.html" method="POST">
+          <input type="hidden" name="token" value="{{.Token}}">
+          <h1>{{.Translation.ChangePassword}}</h1>
+          <p><label for="old">{{.Translation.OldPassword}}:</label></p>
+          <p><input id="old" type="password" name="old" placeholder="{{.Translation.OldPassword}}" required></p>
+          <p><label for="new">{{.Translation.NewPassword}}:</label></p>
+          <p><input id="new" type="password" name="new" placeholder="{{.Translation.NewPassword}}" required></p>
+          <p><input type="submit" id="submitButton" value="{{.Translation.ChangePassword}}"></p>
+        </form>
+    </div>
+
+    <div class="odd flex-item">
+      {{if .CanInvite}}
+      <div id="inv">
+          <h1>{{.Translation.Invitations}}</h1>
+          <p>{{.Translation.OpenInvitations}}:</p>
+          <ul>
+          {{range $i, $e := .Invitations }}
+            <li>{{$.ServerPrefix}}{{$.ServerPath}}/invitation.html?inv={{$e}}<p><button onclick="document.getElementById('deleteInv{{$e}}').removeAttribute('hidden'); this.disabled=true">{{$.Translation.DeleteInvitation}}</button></p><p id="deleteInv{{$e}}" hidden><a href="{{$.ServerPath}}/deleteInvitation.html?id={{$e}}&token={{$.Token}}">{{$.Translation.DeleteInvitation}}</a></p></li>
+          {{end}}
+          </ul>
+        {{if .CreateInvitationMessage}}<p><i>{{.CreateInvitationMessage}}</i></p>{{end}}
+        <form id="newInvitation" action="{{.ServerPath}}/newInvitation.html" method="POST">
+          <input type="hidden" name="token" value="{{.Token}}">
+          <input type="submit" id="submitButton" value="{{.Translation.NewInvitation}}">
+        </form>
+      </div>
       {{end}}
-      </ul>
-    {{if .CreateInvitationMessage}}<p><i>{{.CreateInvitationMessage}}</i></p>{{end}}
-    <form id="newInvitation" action="{{.ServerPath}}/newInvitation.html" method="POST">
-      <input type="hidden" name="token" value="{{.Token}}">
-      <input type="submit" id="submitButton" value="{{.Translation.NewInvitation}}">
-    </form>
-  </div>
-  {{end}}
 
-  <div>
-    <h1>{{.Translation.ExportDataShort}}</h1>
-    <p><a href="{{$.ServerPath}}/dsgvoExport.xml?token={{.Token}}" download="export_{{.User}}.xml">{{.Translation.ExportDataLong}}</a></p>
-  </div>
+      <div>
+        <h1>{{.Translation.ExportDataShort}}</h1>
+        <p><a href="{{$.ServerPath}}/dsgvoExport.xml?token={{.Token}}" download="export_{{.User}}.xml">{{.Translation.ExportDataLong}}</a></p>
+      </div>
 
-  <div>
-    <h1>{{.Translation.DeleteUser}}</h1>
-    <p><button onclick="document.getElementById('deleteLink').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteUser}}</button></p>
-    <p id="deleteLink" hidden><a href="{{$.ServerPath}}/deleteUser.html?user={{.User}}&token={{.Token}}">{{.Translation.DeleteUserWarning}}</a></p>
-  </div>
+      <div>
+        <h1>{{.Translation.DeleteUser}}</h1>
+        <p><button onclick="document.getElementById('deleteLink').removeAttribute('hidden'); this.disabled=true">{{.Translation.DeleteUser}}</button></p>
+        <p id="deleteLink" hidden><a href="{{$.ServerPath}}/deleteUser.html?user={{.User}}&token={{.Token}}">{{.Translation.DeleteUserWarning}}</a></p>
+        </div>
+    </div>
 
-  <div>
-    <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
+    <div class="flex-item">
+      <h1><a href="{{.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
 
-  <script>
-    var elements = document.getElementsByClassName("comment");
-    for(var i = 0; i < elements.length; i++) {
-      renderMathInElement(elements[i]);
-    }
-  </script>
+    <script>
+      var elements = document.getElementsByClassName("comment");
+      for(var i = 0; i < elements.length; i++) {
+        renderMathInElement(elements[i]);
+      }
+    </script>
+
+  </div>
 
   <footer>
     <div>

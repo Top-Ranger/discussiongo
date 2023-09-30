@@ -20,31 +20,35 @@
     </div>
   </header>
 
-  <div>
-    <h1><a href="{{.ServerPath}}/login.html">{{.Translation.Back}}</a></h1>
-  </div>
+  <div class="flex-container">
+    
+    <div class="flex-item">
+      <h1><a href="{{.ServerPath}}/login.html">{{.Translation.Back}}</a></h1>
+    </div>
 
-  {{if .ShowError}}
-  <div>
-    <h1>{{.Error}}</h1>
+    {{if .ShowError}}
+    <div class="odd flex-item">
+      <h1>{{.Error}}</h1>
+    </div>
+    {{end}}
+    {{if .ShowRegister}}
+    <div class="even flex-item">
+        <h1>{{.Translation.RegisterNow}}:</h1>
+          <form id="register" action="{{.ServerPath}}/registerUser.html" method="POST">
+          <p><label for="name">{{.Translation.Name}}:</label></p>
+          <p><input id="name" type="text" name="name" placeholder="Name" required autofocus></p>
+          <p><label for="pw">{{.Translation.Password}}:</label></p>
+          <p><input id="pw" type="password" name="pw" placeholder="Passwort" required></p>
+          <p><input type="checkbox" id="datenschutzerklärung" name="datenschutzerklärung" value="zugestimmt" required> <label for="datenschutzerklärung">{{.Translation.IAcceptPrivacyPolicy}}</label></p>
+          <p><label for="captcha">{{.Captcha}}</label></p>
+          <p><input id="captcha" type="text" name="captcha" placeholder="captcha" required></p>
+          <p><input type="hidden" name="captchaID" value="{{.CaptchaID}}"></p>
+          <p><input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}"></p>
+        </form>
+    </div>
+    {{end}}
+
   </div>
-  {{end}}
-  {{if .ShowRegister}}
-  <div>
-      <h1>{{.Translation.RegisterNow}}:</h1>
-        <form id="register" action="{{.ServerPath}}/registerUser.html" method="POST">
-        <label for="name">{{.Translation.Name}}:</label> <br>
-        <input id="name" type="text" name="name" placeholder="Name" required autofocus> <br>
-        <label for="pw">{{.Translation.Password}}:</label> <br>
-        <input id="pw" type="password" name="pw" placeholder="Passwort" required> <br>
-        <p><input type="checkbox" name="datenschutzerklärung" value="zugestimmt" required> {{.Translation.IAcceptPrivacyPolicy}}</p>
-        <label for="captcha">{{.Captcha}}</label> <br>
-        <input id="captcha" type="text" name="captcha" placeholder="captcha" required> <br>
-        <input type="hidden" name="captchaID" value="{{.CaptchaID}}"> <br>
-        <input type="submit" id="submitButton" value="{{.Translation.RegisterNow}}">
-      </form>
-  </div>
-  {{end}}
 
   <footer>
     <div>

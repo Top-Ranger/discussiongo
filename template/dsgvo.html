@@ -20,18 +20,22 @@
     </div>
   </header>
 
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+  <div class="flex-container">
+
+    <div class="flex-item">
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+
+    <div class="flex-item even">
+      {{.Text}}
+    </div>
+
+    <div class="flex-item">
+      <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
+    </div>
+    
   </div>
 
-  <div>
-    {{.Text}}
-  </div>
-
-  <div>
-    <h1><a href="{{$.ServerPath}}/">{{.Translation.Back}}</a></h1>
-  </div>
-  
   <footer>
     <div>
       {{.Translation.CreatedBy}} <a href="https://msoll.eu/"><u>Marcus Soll</u></a> - <a href="{{.ServerPath}}/impressum.html"><u>{{.Translation.Impressum}}</u></a> - <a href="{{.ServerPath}}/datenschutz.html"><u>{{.Translation.PrivacyPolicy}}</u></a>
