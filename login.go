@@ -86,7 +86,7 @@ func SetCookies(rw http.ResponseWriter, username string) error {
 // RemoveCookies removes the authentification cookies from a given connection represented by a http.ResponseWriter.
 // It also removes the associated authtoken from the database.
 // This has the effect that the user is logged out.
-// Please note that the cookies are not invalidated - if they can be restored, the user is logged in again.
+// Please note that the accesstoken (if present) is invalidated to prevent login if restored.
 func RemoveCookies(r *http.Request, rw http.ResponseWriter) error {
 	token := ""
 	c := r.Cookies()
