@@ -258,7 +258,7 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dsgvo.NotExported = []string{"hashed password", "salt for password hash"}
+	dsgvo.NotExported = []string{"hashed password; algorithm: Argon2id (time=1, memory=64*1024)", "salt for password hash"}
 
 	b, err := xml.MarshalIndent(&dsgvo, "", "\t")
 	if err != nil {
