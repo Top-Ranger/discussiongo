@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ func init() {
 }
 
 func profileHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, _ := TestUser(r)
+	loggedIn, _ := TestUser(r, rw)
 
 	if !config.CanReadWithoutRegister && !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
+	"github.com/Top-Ranger/discussiongo/authtoken"
 	"github.com/Top-Ranger/discussiongo/database"
 	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
@@ -70,13 +71,12 @@ func init() {
 }
 
 func userHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
 		return
 	}
-	SetCookies(rw, user)
 
 	u, err := database.GetUser(user)
 	if err != nil {
@@ -126,7 +126,7 @@ func userHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func userChangeCommentHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -174,7 +174,7 @@ func userChangeCommentHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func userAddInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -226,7 +226,7 @@ func userAddInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func userDeleteInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -291,7 +291,7 @@ func userDeleteInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func userChangePasswordHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -357,7 +357,7 @@ func userChangePasswordHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -497,17 +497,26 @@ func userDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		Date:  time.Now(),
 	}
 
+	c, err = authtoken.DeleteUserToken(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	count += c
+
 	_, err = events.SaveEvent(deletionEvent)
 	if err != nil {
 		log.Printf("Can not save event %+v: %s", deletionEvent, err.Error())
 	}
 
-	RemoveCookies(rw)
+	RemoveCookies(r, rw)
 	rw.Write([]byte(fmt.Sprintf("%s: %s\n%s: %d\n", t.User, name, t.Deleted, count)))
 }
 
 func userMarkReadHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

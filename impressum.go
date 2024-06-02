@@ -29,6 +29,7 @@ import (
 
 	"github.com/Top-Ranger/auth/data"
 	"github.com/Top-Ranger/discussiongo/accesstimes"
+	"github.com/Top-Ranger/discussiongo/authtoken"
 	"github.com/Top-Ranger/discussiongo/database"
 	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
@@ -58,6 +59,7 @@ type DSGVOExport struct {
 	InvitedUser    []DSGVOExportInvitedUsers
 	Invitations    []string
 	TopicsLastRead []accesstimes.AccessTimes
+	AuthToken      []authtoken.Authtoken
 	NotExported    []string
 }
 
@@ -163,7 +165,7 @@ func dsgvoHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -243,6 +245,13 @@ func dsgvoExportHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	dsgvo.TopicsLastRead, err = accesstimes.GetUserTimes(user)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte(err.Error()))
+		return
+	}
+
+	dsgvo.AuthToken, err = authtoken.GetAuthtokenOfUser(user)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))

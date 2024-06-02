@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021,2022 Marcus Soll
+// Copyright 2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ type eventData struct {
 }
 
 func deleteEventHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

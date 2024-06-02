@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import (
 	"runtime/debug"
 
 	"github.com/Top-Ranger/discussiongo/accesstimes"
+	"github.com/Top-Ranger/discussiongo/authtoken"
 	"github.com/Top-Ranger/discussiongo/database"
 	"github.com/Top-Ranger/discussiongo/events"
 	"github.com/Top-Ranger/discussiongo/files"
@@ -80,6 +81,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = authtoken.InitDB(config.DatabaseConfig)
+	if err != nil {
+		panic(err)
+	}
+	authtoken.StartCleanupWorker()
 
 	// Test SYSTEM
 	exists, err := database.UserExists("SYSTEM")

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ func init() {
 }
 
 func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !config.CanReadWithoutRegister && !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -93,7 +93,6 @@ func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			rw.Write([]byte(err.Error()))
 			return
 		}
-		SetCookies(rw, user)
 	}
 
 	topics, err := database.GetTopics()
@@ -181,7 +180,7 @@ func topicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func newTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -230,7 +229,7 @@ func newTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -316,7 +315,7 @@ func deleteTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -401,7 +400,7 @@ func closeTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -485,7 +484,7 @@ func pinTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func renameTopicHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ func formatPost(s string) template.HTML {
 }
 
 func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !config.CanReadWithoutRegister && !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -148,7 +148,6 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			rw.Write([]byte(err.Error()))
 			return
 		}
-		SetCookies(rw, user)
 	}
 
 	q := r.URL.Query()
@@ -312,7 +311,7 @@ func postHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -384,7 +383,7 @@ func newPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -463,7 +462,7 @@ func deletePostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func getFormattedPostHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		rw.WriteHeader(http.StatusForbidden)

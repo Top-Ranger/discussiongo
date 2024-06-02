@@ -36,7 +36,6 @@ type configData struct {
 	ServerPath                    string
 	CookieLanguage                string
 	CookieLogin                   string
-	CookieAuth                    string
 	CookieMinutes                 int
 	LengthPassword                int
 	CreateInvitationMessage       string

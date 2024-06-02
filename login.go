@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2022 Marcus Soll
+// Copyright 2020,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/Top-Ranger/auth/data"
+	"github.com/Top-Ranger/discussiongo/authtoken"
 	"github.com/Top-Ranger/discussiongo/database"
 )
 
@@ -57,9 +58,9 @@ func init() {
 
 // SetCookies adds authentification cookies for a given user to the connection represented by a http.ResponseWriter.
 // Ater setting those, the user is authenticated and logged in.
-// Since the cookies expire after some time (config.CookieMinutes), it is adviced to call it in regular intervals (e.g. whenever the user performs an action).
+// Token will be refreshed if needed by TestUser().
 func SetCookies(rw http.ResponseWriter, username string) error {
-	auth, err := data.GetStringsTimed(time.Now(), username)
+	auth, err := authtoken.GetNewToken(username, config.CookieMinutes)
 	if err != nil {
 		return err
 	}
@@ -71,17 +72,7 @@ func SetCookies(rw http.ResponseWriter, username string) error {
 
 	cookie := http.Cookie{}
 	cookie.Name = config.CookieLogin
-	cookie.Value = username
-	cookie.MaxAge = 60 * config.CookieMinutes
-	cookie.Path = cookiePath
-	cookie.SameSite = http.SameSiteLaxMode
-	cookie.HttpOnly = true
-	cookie.Secure = !config.InsecureAllowCookiesOverHTTP
-	http.SetCookie(rw, &cookie)
-
-	cookie = http.Cookie{}
-	cookie.Name = config.CookieAuth
-	cookie.Value = auth
+	cookie.Value = auth.ID
 	cookie.MaxAge = 60 * config.CookieMinutes
 	cookie.Path = cookiePath
 	cookie.SameSite = http.SameSiteLaxMode
@@ -93,9 +84,25 @@ func SetCookies(rw http.ResponseWriter, username string) error {
 }
 
 // RemoveCookies removes the authentification cookies from a given connection represented by a http.ResponseWriter.
+// It also removes the associated authtoken from the database.
 // This has the effect that the user is logged out.
 // Please note that the cookies are not invalidated - if they can be restored, the user is logged in again.
-func RemoveCookies(rw http.ResponseWriter) {
+func RemoveCookies(r *http.Request, rw http.ResponseWriter) error {
+	token := ""
+	c := r.Cookies()
+	for i := range c {
+		if c[i].Name == config.CookieLogin {
+			token = c[i].Value
+		}
+	}
+
+	if token != "" {
+		err := authtoken.DeleteToken(token)
+		if err != nil {
+			return err
+		}
+	}
+
 	cookiePath := config.ServerPath
 	if cookiePath == "" {
 		cookiePath = "/"
@@ -108,33 +115,40 @@ func RemoveCookies(rw http.ResponseWriter) {
 	cookie.MaxAge = -60 * config.CookieMinutes
 	http.SetCookie(rw, &cookie)
 
-	cookie = http.Cookie{}
-	cookie.Name = config.CookieAuth
-	cookie.Value = ""
-	cookie.Path = cookiePath
-	cookie.MaxAge = -60 * config.CookieMinutes
-	http.SetCookie(rw, &cookie)
+	return nil
 }
 
 // TestUser reports to a given connection represented by *http.Request whether a user is logged in and what his user name is.
-func TestUser(r *http.Request) (bool, string) {
+// Will refresh cookie and authtoken when needed.
+func TestUser(r *http.Request, rw http.ResponseWriter) (bool, string) {
 	c := r.Cookies()
 
-	u, auth := "", ""
+	auth := ""
 
 	// username
 	for i := range c {
 		if c[i].Name == config.CookieLogin {
-			u = c[i].Value
-		} else if c[i].Name == config.CookieAuth {
 			auth = c[i].Value
 		}
 	}
 
-	if u == "" || auth == "" {
+	if auth == "" {
 		return false, ""
 	}
-	return data.VerifyStringsTimed(auth, u, time.Now(), time.Duration(config.CookieMinutes)*time.Minute), u
+	user, validUntil, ok := authtoken.CheckUser(auth)
+
+	if !ok {
+		return false, ""
+	}
+	if time.Until(validUntil)/time.Minute < time.Duration(config.CookieMinutes)/2 {
+		// Refresh token
+		log.Println("refresh")
+		err := SetCookies(rw, user)
+		if err != nil {
+			log.Println("login: can not refresh cookie:", err)
+		}
+	}
+	return true, user
 }
 
 func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
@@ -208,7 +222,7 @@ func loginHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func logoutHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	ok, user := TestUser(r)
+	ok, user := TestUser(r, rw)
 	if !ok {
 		rw.WriteHeader(http.StatusForbidden)
 		return
@@ -234,12 +248,12 @@ func logoutHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RemoveCookies(rw)
+	RemoveCookies(r, rw)
 	http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
 }
 
 func loginPageHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	ok, user := TestUser(r)
+	ok, user := TestUser(r, rw)
 
 	l := loginLogoutData{LoggedIn: ok, Username: user, RegisterPossible: config.CanRegister, ServerPath: config.ServerPath, ForumName: config.ForumName, Translation: GetDefaultTranslation()}
 

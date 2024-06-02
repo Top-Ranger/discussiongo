@@ -11,5 +11,7 @@ CREATE INDEX idx_events_topic ON discussiongo.events (topic);
 CREATE TABLE discussiongo.files (id BIGINT UNSIGNED AUTO_INCREMENT, name VARCHAR(600) NOT NULL, user VARCHAR(600) NOT NULL, topic VARCHAR(600) NOT NULL, date BIGINT UNSIGNED, data LONGBLOB, FOREIGN KEY(user) REFERENCES user(name) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY(id));
 CREATE INDEX idx_files_user ON discussiongo.files (name);
 CREATE INDEX idx_files_topic ON discussiongo.files (topic);
+CREATE TABLE discussiongo.authtoken (id VARCHAR(600) NOT NULL PRIMARY KEY, user TEXT NOT NULL, validUntil INTEGER NOT NULL);
+CREATE INDEX discussiongo.idx_authtoken_id ON authtoken (id);
 CREATE TABLE discussiongo.meta (mkey VARCHAR(600) NOT NULL, value VARCHAR(600), PRIMARY KEY(mkey));
-INSERT INTO discussiongo.meta VALUES ('version', 'MySQL-1');
+INSERT INTO discussiongo.meta VALUES ('version', 'MySQL-2');

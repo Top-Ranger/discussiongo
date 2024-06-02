@@ -183,12 +183,6 @@ func registerInvitationHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(err.Error()))
-		return
-	}
-
 	datenschutzerklärung := q.Get("datenschutzerklärung")
 	if datenschutzerklärung != "zugestimmt" {
 		td := templateInvitationData{

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021 Marcus Soll
+// Copyright 2021,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ func GetFile(ID string) (File, error) {
 		f.ID = strconv.FormatInt(intID, 10)
 		f.Date = time.Unix(intDate, 0)
 	} else {
-		return f, errors.New("Can not read topic data")
+		return f, errors.New("can not read topic data")
 	}
 	return f, nil
 }
@@ -151,7 +151,7 @@ func GetFileMetadata(ID string) (File, error) {
 		f.ID = strconv.FormatInt(intID, 10)
 		f.Date = time.Unix(intDate, 0)
 	} else {
-		return f, errors.New("Can not read topic data")
+		return f, errors.New("can not read topic data")
 	}
 	return f, nil
 }

@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package events
+package authtoken
 
 import (
 	"database/sql"
@@ -33,7 +33,7 @@ const databaseVersion = "MySQL-2"
 func InitDB(config string) error {
 	newDb, err := sql.Open("mysql", config)
 	if err != nil {
-		return fmt.Errorf("events: can not open '%s': %w", config, err)
+		return fmt.Errorf("authtoken: can not open '%s': %w", config, err)
 	}
 
 	// Check version

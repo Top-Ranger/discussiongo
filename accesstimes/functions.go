@@ -64,10 +64,11 @@ func GetTimes(user string, topics []string) ([]time.Time, error) {
 			return t, err
 		}
 		row, err := stmt.Query(user, id)
-		defer row.Close()
 		if err != nil {
 			return t, err
 		}
+		defer row.Close()
+
 		var timeInt int64
 		if row.Next() {
 			err = row.Scan(&timeInt)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022 Marcus Soll
+// Copyright 2020,2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ func init() {
 }
 
 func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -151,7 +151,7 @@ func usermanagementHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -232,7 +232,7 @@ func usermanagementSetAdminHandleFunc(rw http.ResponseWriter, r *http.Request) {
 
 func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -298,7 +298,7 @@ func usermanagementAdminResetPasswortHandleFunc(rw http.ResponseWriter, r *http.
 
 func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -400,7 +400,7 @@ func usermanagementAdminRegisterUserHandleFunc(rw http.ResponseWriter, r *http.R
 
 func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)
@@ -567,7 +567,7 @@ func usermanagementAdminDeleteUserHandleFunc(rw http.ResponseWriter, r *http.Req
 
 func usermanagementAdminDeleteAllInvitationsHandleFunc(rw http.ResponseWriter, r *http.Request) {
 	t := GetDefaultTranslation()
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/", config.ServerPath), http.StatusFound)

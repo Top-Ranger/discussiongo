@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2021,2022 Marcus Soll
+// Copyright 2021,2022,2024 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ func init() {
 }
 
 func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -52,7 +52,6 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			rw.Write([]byte(err.Error()))
 			return
 		}
-		SetCookies(rw, user)
 	}
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -148,7 +147,7 @@ func saveFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !config.CanReadWithoutRegister && !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)
@@ -163,7 +162,6 @@ func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 			rw.Write([]byte(err.Error()))
 			return
 		}
-		SetCookies(rw, user)
 	}
 
 	rw.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -192,7 +190,7 @@ func getFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
 }
 
 func deleteFileHandleFunc(rw http.ResponseWriter, r *http.Request) {
-	loggedIn, user := TestUser(r)
+	loggedIn, user := TestUser(r, rw)
 
 	if !loggedIn {
 		http.Redirect(rw, r, fmt.Sprintf("%s/login.html", config.ServerPath), http.StatusFound)

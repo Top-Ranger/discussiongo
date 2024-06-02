@@ -9,7 +9,6 @@
     "ServerPath": "",
     "CookieLanguage": "lang",
     "CookieLogin": "l",
-    "CookieAuth": "auth",
     "CookieMinutes": 1440,
     "LengthPassword": 12,
     "CreateInvitationMessage": "",
