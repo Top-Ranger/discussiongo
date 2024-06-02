@@ -37,7 +37,7 @@ func InitDB(config string) error {
 	}
 
 	// Check version
-	rows, err := db.Query("SELECT value FROM meta WHERE mkey=?", "version")
+	rows, err := newDb.Query("SELECT value FROM meta WHERE mkey=?", "version")
 	if err != nil {
 		return err
 	}
