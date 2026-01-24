@@ -49,7 +49,7 @@ func GetTopics() ([]Topic, error) {
 	return topics, nil
 }
 
-//GetTopicsByUser returns all topics belonging to a user currently saved in the database.
+// GetTopicsByUser returns all topics belonging to a user currently saved in the database.
 func GetTopicsByUser(user string) ([]Topic, error) {
 	exists, err := UserExists(user)
 	if err != nil {

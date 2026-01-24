@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2020,2021,2022,2024 Marcus Soll
+// Copyright 2020,2021,2022,2024,2026 Marcus Soll
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -350,6 +350,11 @@ func userChangePasswordHandleFunc(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		rw.Write([]byte(err.Error()))
 		return
+	}
+
+	_, err = authtoken.DeleteUserToken(user)
+	if err != nil {
+		log.Printf("Can not delete auth tokens for '%s' after password change: %s", user, err.Error())
 	}
 
 	http.Redirect(rw, r, fmt.Sprintf("%s/user.html", config.ServerPath), http.StatusFound)
